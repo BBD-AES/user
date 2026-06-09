@@ -1,4 +1,4 @@
-package com.bbd.user.application.port.out.persistence;
+package com.bbd.user.adapter.persistence.out;
 
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.User;
