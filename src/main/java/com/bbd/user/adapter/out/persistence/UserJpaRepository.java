@@ -1,4 +1,4 @@
-package com.bbd.user.adapter.persistence.out;
+package com.bbd.user.adapter.out.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

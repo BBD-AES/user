@@ -1,4 +1,4 @@
-package com.bbd.user.adapter.persistence.out;
+package com.bbd.user.adapter.out.persistence;
 
 import com.bbd.user.application.port.out.LoadUserPort;
 import com.bbd.user.domain.User;
