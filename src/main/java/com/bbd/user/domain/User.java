@@ -56,13 +56,6 @@ public class User {
     private final TenancyType tenancyType;
 
     /*
-     인가 판단에 사용하는 소속 식별자.
-     HQ면 본사 ID, BRANCH면 지점 ID처럼 사용한다.
-     예: 인천 지점이라면 tenancyId = 3
-     */
-    private final Long tenancyId;
-
-    /*
      화면 표시나 로그에 사용하는 소속 이름.
      인가 판단 기준으로 사용하지 않는다.
      예: "본사", "인천 지점", "강남 지점"
@@ -86,7 +79,6 @@ public class User {
             UserStatus status,
             UserRole role,
             TenancyType tenancyType,
-            Long tenancyId,
             String tenancyName,
             Long version
     ) {
@@ -103,7 +95,6 @@ public class User {
         this.status = Objects.requireNonNull(status, "status는 필수입니다.");
         this.role = Objects.requireNonNull(role, "role은 필수입니다.");
         this.tenancyType = Objects.requireNonNull(tenancyType, "tenancyType은 필수입니다.");
-        this.tenancyId = tenancyId;
         this.tenancyName = tenancyName;
         this.version = version == null ? 1L : version;
     }
@@ -128,9 +119,5 @@ public class User {
 
     public boolean hasRole(UserRole requiredRole) {
         return role == requiredRole;
-    }
-
-    public boolean belongsToTenancy(Long targetTenancyId) {
-        return tenancyId != null && tenancyId.equals(targetTenancyId);
     }
 }

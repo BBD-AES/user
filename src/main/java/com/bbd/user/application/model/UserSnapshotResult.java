@@ -24,7 +24,6 @@ public record UserSnapshotResult(
         UserStatus status,
         UserRole role,
         TenancyType tenancyType,
-        Long tenancyId,
         String tenancyName,
         Long version
 ) {
@@ -41,7 +40,6 @@ public record UserSnapshotResult(
                 user.getStatus(),
                 user.getRole(),
                 user.getTenancyType(),
-                user.getTenancyId(),
                 user.getTenancyName(),
                 user.getVersion()
         );
