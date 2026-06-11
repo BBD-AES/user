@@ -23,7 +23,6 @@ public record UserSnapshotResponse(
         UserStatus status,
         UserRole role,
         TenancyType tenancyType,
-        Long tenancyId,
         String tenancyName,
         Long version
 ) {
@@ -40,7 +39,6 @@ public record UserSnapshotResponse(
                 result.status(),
                 result.role(),
                 result.tenancyType(),
-                result.tenancyId(),
                 result.tenancyName(),
                 result.version()
         );

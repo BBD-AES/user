@@ -63,9 +63,6 @@ public class UserJpaEntity {
     @Column(name = "tenancy_type", nullable = false, length = 30)
     private TenancyType tenancyType;
 
-    @Column(name = "tenancy_id")
-    private Long tenancyId;
-
     @Column(name = "tenancy_name", length = 100)
     private String tenancyName;
 
@@ -88,7 +85,6 @@ public class UserJpaEntity {
                 status,
                 role,
                 tenancyType,
-                tenancyId,
                 tenancyName,
                 version
         );

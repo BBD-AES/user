@@ -47,3 +47,6 @@ src/main/resources/application-*.yaml
 ### macOS ###
 .DS_Store
 ._*
+
+### 로컬용 설정 파일
+.env
