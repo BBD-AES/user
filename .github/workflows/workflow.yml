@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  packages: read
+
 env:
   AWS_REGION: ap-northeast-2
   AWS_ACCOUNT_ID: "013969386212"
@@ -36,6 +40,8 @@ jobs:
       - name: Build & Push Docker Image
         run: |
           docker build \
+            --build-arg GITHUB_USERNAME=${{ github.actor }} \
+            --build-arg GITHUB_TOKEN=${{ secrets.GH_GITHUB_TOKEN }} \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
             .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
