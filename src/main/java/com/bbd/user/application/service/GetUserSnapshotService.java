@@ -2,7 +2,6 @@ package com.bbd.user.application.service;
 
 import com.bbd.user.application.model.UserSnapshotResult;
 import com.bbd.user.application.port.in.GetUserSnapshotUseCase;
-import com.bbd.user.application.port.out.CacheUserSnapshotPort;
 import com.bbd.user.application.port.out.LoadUserPort;
 import com.bbd.user.domain.User;
 import com.bbd.user.global.error.ApiException;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class GetUserSnapshotService implements GetUserSnapshotUseCase {
 
     private final LoadUserPort loadUserPort;
-    private final CacheUserSnapshotPort cacheUserSnapshotPort;
 
     @Override
     public UserSnapshotResult getSnapshotByKeycloakSub(String keycloakSub) {
@@ -37,14 +35,6 @@ public class GetUserSnapshotService implements GetUserSnapshotUseCase {
         User user = loadUserPort.findByKeycloakSub(keycloakSub)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
-        UserSnapshotResult snapshot = UserSnapshotResult.from(user);
-
-        try {
-            cacheUserSnapshotPort.save(snapshot);
-        } catch (RuntimeException ignored) {
-            // Redis cache write failure should not block snapshot response.
-        }
-
-        return snapshot;
+        return UserSnapshotResult.from(user);
     }
 }
