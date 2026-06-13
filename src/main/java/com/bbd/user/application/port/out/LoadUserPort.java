@@ -12,5 +12,9 @@ import java.util.Optional;
  */
 public interface LoadUserPort {
 
+    // JWT sub를 기준으로 현재 요청자나 인증 대상 사용자를 조회한다.
     Optional<User> findByKeycloakSub(String keycloakSub);
+
+    // 관리자 변경 API의 path variable로 받은 ERP 사용자 ID를 조회한다.
+    Optional<User> findById(Long userId);
 }
