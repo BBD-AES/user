@@ -3,9 +3,6 @@ server:
     context-path: /user
 
 spring:
-  config:
-    import: optional:file:.env[.properties]
-
   application:
     name: user
 
@@ -18,6 +15,40 @@ spring:
     username: ${DB_NAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
+  # bbd-security-core와 동일한 Redis를 바라봐야 같은 UserSnapshot key를 삭제할 수 있다.
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  # User DB 변경 이벤트를 ERP Kafka에 발행하고 다시 소비하기 위한 공통 Kafka 설정.
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      # leader와 in-sync replica의 확인을 받아 데이터 유실 가능성을 줄인다.
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        # Producer 재시도 과정에서 같은 record가 중복 저장될 가능성을 줄인다.
+        enable.idempotence: true
+    consumer:
+      # record 처리가 성공한 뒤 listener container가 offset을 관리한다.
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      # record 하나의 처리가 끝날 때마다 offset을 commit한다.
+      ack-mode: record
+
+  # Gateway 또는 다른 MSA가 Relay한 Keycloak JWT의 issuer를 기준으로 검증한다.
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
 
   flyway:
     enabled: true
@@ -32,6 +63,27 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+# User 변경 이벤트 기능 설정.
+# 기본값은 false
+# Kafka/Redis가 준비되지 않은 상태에서도 기존 User Service가 실행되도록 하고,
+# 인프라 준비 후 true로 바꾸면 쌓여 있던 PENDING Outbox부터 발행한다.
+bbd:
+  user:
+    events:
+      enabled: ${USER_EVENTS_ENABLED:false}
+      # User Service가 발행하고 Snapshot Consumer가 구독하는 topic.
+      topic: ${USER_CHANGED_TOPIC:erp.user.changed.v1}
+      # UserSnapshot 무효화 Consumer group.
+      snapshot-consumer-group: ${USER_SNAPSHOT_CONSUMER_GROUP:user-snapshot-projector-v1}
+      # bbd-security-core의 기본 cache key prefix와 반드시 같아야 한다.
+      cache-key-prefix: ${USER_SNAPSHOT_CACHE_KEY_PREFIX:user:snapshot:}
+      # 한 polling에서 lock해서 처리할 Outbox 최대 개수.
+      outbox-batch-size: ${USER_OUTBOX_BATCH_SIZE:100}
+      # polling 실행이 끝난 뒤 다음 실행까지 기다리는 시간.
+      publish-delay-ms: ${USER_OUTBOX_PUBLISH_DELAY_MS:1000}
+      # Kafka send 결과를 기다리는 최대 시간.
+      send-timeout-ms: ${USER_EVENT_SEND_TIMEOUT_MS:5000}
 
 # Swagger
 springdoc:
