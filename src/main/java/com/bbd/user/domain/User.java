@@ -120,4 +120,36 @@ public class User {
     public boolean hasRole(UserRole requiredRole) {
         return role == requiredRole;
     }
+
+    /*
+     사용자 인가 판단에 사용하는 상태, 역할, 소속을 변경한다.
+
+     기존 User를 직접 수정하지 않고 새 User를 반환해서
+     도메인 모델의 불변성을 유지한다.
+
+     version은 여기서 직접 증가시키지 않는다.
+     persistence 계층의 JPA @Version이 DB update 성공 시 증가시키고,
+     저장된 Entity를 다시 도메인 모델로 변환해서 최종 version을 반환한다.
+     */
+    public User changeAuthorization(
+            UserStatus newStatus,
+            UserRole newRole,
+            TenancyType newTenancyType,
+            String newTenancyName
+    ) {
+        return new User(
+                id,
+                keycloakSub,
+                employeeNumber,
+                username,
+                displayName,
+                email,
+                position,
+                Objects.requireNonNull(newStatus, "status는 필수입니다."),
+                Objects.requireNonNull(newRole, "role은 필수입니다."),
+                Objects.requireNonNull(newTenancyType, "tenancyType은 필수입니다."),
+                newTenancyName,
+                version
+        );
+    }
 }
