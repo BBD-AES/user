@@ -17,6 +17,8 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT:2s}
+      timeout: ${REDIS_COMMAND_TIMEOUT:2s}
 
   # MSK 또는 배포 환경 Kafka broker 주소를 KAFKA_BOOTSTRAP_SERVERS로 주입한다.
   kafka:
