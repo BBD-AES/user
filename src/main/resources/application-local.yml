@@ -25,6 +25,8 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT:2s}
+      timeout: ${REDIS_COMMAND_TIMEOUT:2s}
 
   # User DB 변경 이벤트를 ERP Kafka에 발행하고 다시 소비하기 위한 공통 Kafka 설정.
   kafka:
