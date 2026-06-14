@@ -3,6 +3,10 @@ server:
     context-path: /user
 
 spring:
+  # 커밋 시 삭제
+  config:
+    import: optional:file:.env[.properties]
+
   application:
     name: user
 
