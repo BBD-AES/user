@@ -7,29 +7,26 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class ScimDiscoveryControllerTest {
+class ScimGroupControllerTest {
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new ScimDiscoveryController())
+                .standaloneSetup(new ScimGroupController())
                 .build();
     }
 
     @Test
-    void resourceTypesSupportsConnectorJsonAcceptHeader() throws Exception {
-        mockMvc.perform(get("/scim/v2/ResourceTypes")
+    void returnsEmptyGroupListForConnectorCompatibility() throws Exception {
+        mockMvc.perform(get("/scim/v2/Groups")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.totalResults").value(2))
-                .andExpect(jsonPath("$.Resources[0].name").value("User"))
-                .andExpect(jsonPath("$.Resources[1].name").value("Group"));
+                .andExpect(jsonPath("$.totalResults").value(0))
+                .andExpect(jsonPath("$.Resources").isEmpty());
     }
 }

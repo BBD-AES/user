@@ -25,6 +25,8 @@ public final class ScimConstants {
 
     public static final String CORE_USER_SCHEMA =
             "urn:ietf:params:scim:schemas:core:2.0:User";
+    public static final String CORE_GROUP_SCHEMA =
+            "urn:ietf:params:scim:schemas:core:2.0:Group";
     public static final String ENTERPRISE_USER_SCHEMA =
             "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User";
     public static final String ERP_USER_SCHEMA =

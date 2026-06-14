@@ -55,10 +55,11 @@ public class ScimDiscoveryController {
     }
 
     /*
-     현재 제공하는 resource는 User 하나다.
+     User Service의 실제 provisioning 대상은 User다.
 
-     /Users가 Core User schema와 Enterprise/BBD ERP extension을 사용한다는 정보를
-     midPoint에 제공한다.
+     사용 중인 SCIM2 Connector 1.2.9는 연결 검사에서 User와 Group ResourceType을
+     모두 요구하므로 Group도 호환용 read-only resource로 광고한다.
+     ERP 권한은 Group projection이 아니라 User.roles와 ERP extension으로 관리한다.
      */
     @GetMapping("/ResourceTypes")
     public ScimListResponse<Map<String, Object>> resourceTypes() {
@@ -74,7 +75,16 @@ public class ScimDiscoveryController {
                 )
         );
 
-        return ScimListResponse.of(List.of(user), 1, 1);
+        Map<String, Object> group = Map.of(
+                "schemas", List.of("urn:ietf:params:scim:schemas:core:2.0:ResourceType"),
+                "id", "Group",
+                "name", "Group",
+                "endpoint", "/Groups",
+                "schema", ScimConstants.CORE_GROUP_SCHEMA,
+                "schemaExtensions", List.of()
+        );
+
+        return ScimListResponse.of(List.of(user, group), 2, 1);
     }
 
     /*
@@ -96,6 +106,15 @@ public class ScimDiscoveryController {
                                 attribute("title", "string", false, "none"),
                                 attribute("active", "boolean", false, "none"),
                                 attribute("roles", "complex", false, "none")
+                        )
+                ),
+                schema(
+                        ScimConstants.CORE_GROUP_SCHEMA,
+                        "Group",
+                        List.of(
+                                attribute("displayName", "string", true, "server"),
+                                attribute("externalId", "string", false, "server"),
+                                attribute("members", "complex", false, "none")
                         )
                 ),
                 schema(
