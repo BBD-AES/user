@@ -24,9 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
  실제 권한 검사, User DB 변경, Outbox 저장은
  UpdateUserAuthorizationUseCase 구현체에서 처리한다.
 
- 향후 midPoint는 이 관리자 API를 호출하지 않는다.
+ midPoint는 이 관리자 API를 호출하지 않는다.
  midPoint는 /scim/** 전용 mTLS API를 사용하고,
- 두 adapter가 내부 application 변경 로직과 Outbox 흐름을 재사용하는 구조로 확장한다.
+ 두 adapter는 각자의 application use case에서 같은 Outbox와 Snapshot 복구 흐름을 사용한다.
  */
 @RestController
 @RequestMapping("/api/v1/users")
