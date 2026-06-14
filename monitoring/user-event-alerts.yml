@@ -1,0 +1,48 @@
+groups:
+  - name: user-service-event-recovery
+    rules:
+      - alert: UserOutboxPendingStuck
+        expr: max by (application) (bbd_user_outbox_pending{application="user"}) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "User Outbox PENDING 이벤트가 5분 이상 남아 있습니다."
+          description: "Kafka 연결과 UserOutboxPublisher 로그를 확인합니다."
+
+      - alert: UserSnapshotEvictionFailed
+        expr: sum by (application) (increase(bbd_user_snapshot_eviction_total{application="user",result="failure"}[5m])) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "User Snapshot Redis 삭제가 실패했습니다."
+          description: "source tag로 AFTER_COMMIT, Kafka, DLT 중 실패 경로를 확인합니다."
+
+      - alert: UserEventSentToDlt
+        expr: sum by (application) (increase(bbd_user_event_dlt_published_total{application="user",result="success"}[5m])) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "User 변경 이벤트가 DLT로 이동했습니다."
+          description: "Redis 상태와 DLT 복구 Consumer 로그를 확인합니다."
+
+      - alert: UserEventDltPublishFailed
+        expr: sum by (application) (increase(bbd_user_event_dlt_published_total{application="user",result="failure"}[5m])) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "User 변경 이벤트의 DLT 발행도 실패했습니다."
+          description: "Kafka broker, ACL, DLT topic 존재 여부를 즉시 확인합니다."
+
+      # kafka_exporter가 kafka_consumergroup_lag를 수집하는 환경에서 사용한다.
+      - alert: UserEventDltRecoveryLag
+        expr: sum(kafka_consumergroup_lag{consumergroup="user-snapshot-dlt-recovery-v1",topic="erp.user.changed.v1.DLT"}) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "User 변경 DLT가 5분 이상 복구되지 않았습니다."
+          description: "Redis 복구 여부와 DLT Consumer 처리 오류를 확인합니다."
