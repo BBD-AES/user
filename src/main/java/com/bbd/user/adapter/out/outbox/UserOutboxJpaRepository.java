@@ -18,6 +18,9 @@ import java.util.UUID;
  */
 public interface UserOutboxJpaRepository extends JpaRepository<UserOutboxJpaEntity, UUID> {
 
+    // Prometheus에서 아직 발행되지 않은 Outbox 적체량을 확인할 때 사용한다.
+    long countByStatus(UserOutboxStatus status);
+
     /*
      오래된 PENDING 이벤트부터 batchSize만큼 가져온다.
      이 query는 @Transactional 범위 안에서 실행되어야 row lock이 유지된다.

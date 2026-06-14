@@ -1,10 +1,9 @@
 package com.bbd.user.adapter.in.event;
 
+import com.bbd.user.adapter.out.redis.UserSnapshotCacheEvictor;
 import com.bbd.user.application.event.UserChangedEvent;
-import com.bbd.user.config.UserEventProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
@@ -32,9 +31,8 @@ import tools.jackson.databind.ObjectMapper;
 )
 public class UserSnapshotCacheInvalidator {
 
-    private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
-    private final UserEventProperties properties;
+    private final UserSnapshotCacheEvictor cacheEvictor;
 
     @KafkaListener(
             topics = "${bbd.user.events.topic:erp.user.changed.v1}",
@@ -44,7 +42,6 @@ public class UserSnapshotCacheInvalidator {
         // Outbox에 저장한 JSON payload를 공통 event contract로 역직렬화한다.
         UserChangedEvent event = objectMapper.readValue(payload, UserChangedEvent.class);
 
-        // 예: user:snapshot:{keycloakSub}
-        stringRedisTemplate.delete(properties.getCacheKeyPrefix() + event.keycloakSub());
+        cacheEvictor.evict(event, "kafka");
     }
 }
