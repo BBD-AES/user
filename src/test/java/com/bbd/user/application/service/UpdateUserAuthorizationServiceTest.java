@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  Spring Context나 실제 DB를 사용하지 않고 stub port를 주입한다.
 
  검증 대상:
- - ACTIVE + HQ_MANAGER가 권한을 변경할 수 있는지
+ - ACTIVE + ADMIN/HQ_MANAGER가 권한을 변경할 수 있는지
  - 저장 후 증가한 version이 event에도 들어가는지
  - 같은 event가 Outbox와 AFTER_COMMIT 처리 양쪽에 전달되는지
- - HQ_MANAGER가 아닌 사용자를 차단하는지
+ - ADMIN/HQ_MANAGER가 아닌 사용자를 차단하는지
  */
 class UpdateUserAuthorizationServiceTest {
 
@@ -66,6 +66,32 @@ class UpdateUserAuthorizationServiceTest {
         assertEquals(result.keycloakSub(), eventPort.recorded.keycloakSub());
         assertEquals(result.version(), eventPort.recorded.version());
         assertEquals(eventPort.recorded, applicationEventPublisher.published);
+    }
+
+    @Test
+    void activeAdminCanChangeAuthorization() {
+        User actor = user(1L, "admin-sub", UserStatus.ACTIVE, UserRole.ADMIN, 1L);
+        User target = user(2L, "target-sub", UserStatus.PENDING, UserRole.HQ_STAFF, 1L);
+        StubUserPorts userPorts = new StubUserPorts(actor, target);
+
+        UpdateUserAuthorizationService service =
+                new UpdateUserAuthorizationService(userPorts, userPorts, event -> {
+                }, event -> {
+                });
+
+        UserSnapshotResult result = service.updateAuthorization(
+                new UpdateUserAuthorizationCommand(
+                        actor.getKeycloakSub(),
+                        target.getId(),
+                        UserStatus.ACTIVE,
+                        UserRole.HQ_STAFF,
+                        TenancyType.HQ,
+                        "본사"
+                )
+        );
+
+        assertEquals(UserStatus.ACTIVE, result.status());
+        assertEquals(UserRole.HQ_STAFF, result.role());
     }
 
     @Test
@@ -113,8 +139,12 @@ class UpdateUserAuthorizationServiceTest {
                 "직원",
                 status,
                 role,
-                role.name().startsWith("HQ") ? TenancyType.HQ : TenancyType.BRANCH,
-                role.name().startsWith("HQ") ? "본사" : "지점",
+                role == UserRole.ADMIN || role.name().startsWith("HQ")
+                        ? TenancyType.HQ
+                        : TenancyType.BRANCH,
+                role == UserRole.ADMIN || role.name().startsWith("HQ")
+                        ? "본사"
+                        : "지점",
                 version
         );
     }
