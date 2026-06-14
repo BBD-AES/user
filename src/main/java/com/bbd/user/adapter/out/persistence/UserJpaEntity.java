@@ -41,7 +41,7 @@ public class UserJpaEntity {
     @Column(name = "employee_number", nullable = false, unique = true, length = 50)
     private String employeeNumber;
 
-    @Column(name = "username", length = 100)
+    @Column(name = "username", unique = true, length = 100)
     private String username;
 
     @Column(name = "display_name", length = 100)
@@ -83,7 +83,7 @@ public class UserJpaEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    // 관리자 API 또는 향후 SCIM 변경이 마지막으로 반영된 시각.
+    // 관리자 API 또는 SCIM 변경이 마지막으로 반영된 시각.
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
@@ -106,6 +106,29 @@ public class UserJpaEntity {
                 tenancyName,
                 version
         );
+    }
+
+    /*
+     SCIM POST로 생성된 신규 User 도메인을 users 테이블 INSERT용 Entity로 변환한다.
+     */
+    public static UserJpaEntity from(User user) {
+        UserJpaEntity entity = new UserJpaEntity();
+        Instant now = Instant.now();
+
+        entity.keycloakSub = user.getKeycloakSub();
+        entity.employeeNumber = user.getEmployeeNumber();
+        entity.username = user.getUsername();
+        entity.displayName = user.getDisplayName();
+        entity.email = user.getEmail();
+        entity.position = user.getPosition();
+        entity.status = user.getStatus();
+        entity.role = user.getRole();
+        entity.tenancyType = user.getTenancyType();
+        entity.tenancyName = user.getTenancyName();
+        entity.createdAt = now;
+        entity.updatedAt = now;
+
+        return entity;
     }
 
     /*
