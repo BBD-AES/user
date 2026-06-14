@@ -1,11 +1,10 @@
 package com.bbd.user.adapter.in.event;
 
+import com.bbd.user.adapter.out.redis.UserSnapshotCacheEvictor;
 import com.bbd.user.application.event.UserChangedEvent;
-import com.bbd.user.config.UserEventProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -23,8 +22,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @ConditionalOnProperty(prefix = "bbd.user.events", name = "enabled", havingValue = "true")
 public class UserSnapshotImmediateCacheInvalidator {
 
-    private final StringRedisTemplate redisTemplate;
-    private final UserEventProperties properties;
+    private final UserSnapshotCacheEvictor cacheEvictor;
 
     /*
      AFTER_COMMIT이므로 User 변경과 Outbox 저장이 rollback된 경우에는 실행되지 않는다.
@@ -34,21 +32,18 @@ public class UserSnapshotImmediateCacheInvalidator {
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void invalidate(UserChangedEvent event) {
-        String cacheKey = properties.getCacheKeyPrefix() + event.keycloakSub();
-
         try {
-            redisTemplate.delete(cacheKey);
+            String cacheKey = cacheEvictor.evict(event, "after_commit");
             log.info(
-                    "사용자 스냅샷을 커밋 직후 삭제했습니다. keycloakSub={}, cacheKey={}",
+                    "사용자 스냅샷을 commit 직후 삭제했습니다. keycloakSub={}, cacheKey={}",
                     event.keycloakSub(),
                     cacheKey
             );
         } catch (RuntimeException exception) {
             log.warn(
-                    "사용자 스냅샷 즉시 삭제에 실패했습니다. Kafka 이벤트를 통해 다시 삭제합니다. "
-                            + "keycloakSub={}, cacheKey={}",
+                    "사용자 스냅샷 즉시 삭제에 실패했습니다. Kafka와 DLT 복구 경로에서 다시 처리합니다. "
+                            + "keycloakSub={}",
                     event.keycloakSub(),
-                    cacheKey,
                     exception
             );
         }
