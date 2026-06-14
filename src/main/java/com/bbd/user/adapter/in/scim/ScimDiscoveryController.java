@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 /*
  midPoint가 연결 초기화와 schema 확인에 사용하는 SCIM discovery endpoint.
 
@@ -22,7 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping(
         value = "/scim/v2",
-        produces = ScimConstants.MEDIA_TYPE
+        produces = {ScimConstants.MEDIA_TYPE, APPLICATION_JSON_VALUE}
 )
 public class ScimDiscoveryController {
 
