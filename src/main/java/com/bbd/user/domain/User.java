@@ -122,6 +122,109 @@ public class User {
     }
 
     /*
+     midPoint가 ERP 대상자로 판단한 사용자를 승인 대기 상태로 생성한다.
+
+     SCIM의 active는 원천 계정의 활성 여부이고 ERP 사용 승인 여부와는 다르다.
+     원천 계정이 활성 상태라면 PENDING으로 생성해 ERP 관리자 승인을 기다리고,
+     이미 비활성 상태라면 INACTIVE로 생성한다.
+     */
+    public static User pendingProvisioning(
+            String keycloakSub,
+            String employeeNumber,
+            String username,
+            String displayName,
+            String email,
+            String position,
+            UserRole role,
+            TenancyType tenancyType,
+            String tenancyName,
+            boolean sourceActive
+    ) {
+        return new User(
+                null,
+                keycloakSub,
+                employeeNumber,
+                username,
+                displayName,
+                email,
+                position,
+                sourceActive ? UserStatus.PENDING : UserStatus.INACTIVE,
+                role,
+                tenancyType,
+                tenancyName,
+                1L
+        );
+    }
+
+    /*
+     SCIM reconciliation에서 전달된 원천 사용자 정보와 ERP 역할 후보를 반영한다.
+
+     active=true는 ERP 승인을 의미하지 않는다.
+     기존 ACTIVE 사용자는 ACTIVE를 유지하고, PENDING 사용자는 PENDING을 유지한다.
+     퇴사 후 다시 ERP 대상자가 된 INACTIVE 사용자는 재승인을 위해 PENDING으로 전환한다.
+     active=false는 즉시 INACTIVE로 전환한다.
+     */
+    public User updateProvisioning(
+            String newEmployeeNumber,
+            String newUsername,
+            String newDisplayName,
+            String newEmail,
+            String newPosition,
+            UserRole newRole,
+            TenancyType newTenancyType,
+            String newTenancyName,
+            Boolean sourceActive
+    ) {
+        UserStatus nextStatus = status;
+
+        if (Boolean.FALSE.equals(sourceActive)) {
+            nextStatus = UserStatus.INACTIVE;
+        } else if (Boolean.TRUE.equals(sourceActive) && status == UserStatus.INACTIVE) {
+            nextStatus = UserStatus.PENDING;
+        }
+
+        return new User(
+                id,
+                keycloakSub,
+                valueOrCurrent(newEmployeeNumber, employeeNumber),
+                valueOrCurrent(newUsername, username),
+                valueOrCurrent(newDisplayName, displayName),
+                valueOrCurrent(newEmail, email),
+                valueOrCurrent(newPosition, position),
+                nextStatus,
+                newRole == null ? role : newRole,
+                newTenancyType == null ? tenancyType : newTenancyType,
+                newTenancyName == null ? tenancyName : newTenancyName,
+                version
+        );
+    }
+
+    /*
+     SCIM DELETE와 active=false는 DB row를 지우지 않고 ERP 사용자를 비활성화한다.
+     감사 이력과 Keycloak sub 매핑을 유지해야 재입사나 부서 복귀 시 같은 사용자를 찾을 수 있다.
+     */
+    public User deactivate() {
+        return new User(
+                id,
+                keycloakSub,
+                employeeNumber,
+                username,
+                displayName,
+                email,
+                position,
+                UserStatus.INACTIVE,
+                role,
+                tenancyType,
+                tenancyName,
+                version
+        );
+    }
+
+    private String valueOrCurrent(String candidate, String current) {
+        return candidate == null ? current : candidate;
+    }
+
+    /*
      사용자 인가 판단에 사용하는 상태, 역할, 소속을 변경한다.
 
      기존 User를 직접 수정하지 않고 새 User를 반환해서
