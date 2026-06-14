@@ -77,6 +77,11 @@ spring:
 # 인프라 준비 후 true로 바꾸면 쌓여 있던 PENDING Outbox부터 발행한다.
 bbd:
   user:
+    # midPoint client certificate와 HTTPS가 준비된 뒤 true로 전환한다.
+    scim:
+      enabled: ${SCIM_ENABLED:false}
+      allowed-client-common-name: ${SCIM_CLIENT_COMMON_NAME:midpoint}
+
     events:
       enabled: ${USER_EVENTS_ENABLED:false}
       # User Service가 발행하고 Snapshot Consumer가 구독하는 topic.

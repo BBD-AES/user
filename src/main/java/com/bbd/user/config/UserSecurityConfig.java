@@ -1,5 +1,6 @@
 package com.bbd.user.config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -7,6 +8,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
 
 /*
@@ -18,21 +21,66 @@ import org.springframework.security.web.SecurityFilterChain;
  - /api/**  : Gateway가 전달한 Keycloak Access Token을 검증하는 ERP API
  - /scim/** : midPoint의 client certificate를 검증할 provisioning API
 
- 아직 SCIM mTLS를 구현하지 않았으므로 /scim/**는 전부 차단한다.
+ SCIM 기능을 끈 환경에서는 /scim/**를 전부 차단하고,
+ 기능을 켠 환경에서는 X.509 client certificate의 CN을 검증한다.
  각 SecurityFilterChain은 @Order 순서대로 검사되며,
  먼저 일치한 체인만 해당 요청을 처리한다.
  */
 @Configuration
 public class UserSecurityConfig {
 
-    /*
-     향후 midPoint 전용 mTLS 체인으로 교체할 자리.
+    @Bean
+    @Order(1)
+    @ConditionalOnProperty(
+            prefix = "bbd.user.scim",
+            name = "enabled",
+            havingValue = "true"
+    )
+    SecurityFilterChain scimMtlsSecurityFilterChain(
+            HttpSecurity http,
+            ScimProperties properties
+    ) throws Exception {
+        UserDetailsService midPointClient = commonName -> {
+            if (!properties.getAllowedClientCommonName().equals(commonName)) {
+                throw new UsernameNotFoundException(
+                        "허용되지 않은 SCIM client certificate CN입니다."
+                );
+            }
 
-     SCIM 구현 전에는 경로가 실수로 외부에 노출되지 않도록 denyAll로 막는다.
-     SCIM 단계에서는 이 체인에 x509 인증과 midPoint 인증서 검증을 추가한다.
+            return org.springframework.security.core.userdetails.User
+                    .withUsername(commonName)
+                    .password("")
+                    .authorities("ROLE_SCIM_CLIENT")
+                    .build();
+        };
+
+        return http
+                .securityMatcher("/scim/**")
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().hasRole("SCIM_CLIENT")
+                )
+                .x509(x509 -> x509
+                        .subjectPrincipalRegex("CN=(.*?)(?:,|$)")
+                        .userDetailsService(midPointClient)
+                )
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .build();
+    }
+
+    /*
+     mTLS 인증서와 HTTPS 설정이 준비되지 않은 환경에서는 SCIM 경로를 전부 차단한다.
      */
     @Bean
     @Order(1)
+    @ConditionalOnProperty(
+            prefix = "bbd.user.scim",
+            name = "enabled",
+            havingValue = "false",
+            matchIfMissing = true
+    )
     SecurityFilterChain scimDisabledSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/scim/**")
