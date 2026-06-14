@@ -15,8 +15,8 @@ import com.bbd.user.domain.UserStatus;
  targetUserId:
  실제로 상태, 역할, 소속을 변경할 ERP 사용자 ID.
 
- 이후 SCIM adapter가 추가되더라도 adapter별 입력을 이와 같은 application command로
- 변환해서 동일한 변경 규칙과 Outbox 흐름을 재사용할 수 있다.
+ SCIM adapter도 protocol 입력을 별도 application command로 변환하고,
+ 관리자 API와 같은 Outbox 및 Snapshot 복구 흐름을 사용한다.
  */
 public record UpdateUserAuthorizationCommand(
         String actorKeycloakSub,

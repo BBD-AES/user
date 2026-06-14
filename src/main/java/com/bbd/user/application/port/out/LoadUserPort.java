@@ -2,6 +2,7 @@ package com.bbd.user.application.port.out;
 
 import com.bbd.user.domain.User;
 
+import java.util.List;
 import java.util.Optional;
 
 /*
@@ -17,4 +18,20 @@ public interface LoadUserPort {
 
     // 관리자 변경 API의 path variable로 받은 ERP 사용자 ID를 조회한다.
     Optional<User> findById(Long userId);
+
+    default Optional<User> findByEmployeeNumber(String employeeNumber) {
+        return Optional.empty();
+    }
+
+    default Optional<User> findByUsername(String username) {
+        return Optional.empty();
+    }
+
+    default List<User> findAll(int offset, int count) {
+        return List.of();
+    }
+
+    default long countAll() {
+        return 0L;
+    }
 }
