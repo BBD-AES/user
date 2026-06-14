@@ -83,6 +83,8 @@ public class UserSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/health",
+                                "/actuator/health",
+                                "/actuator/prometheus",
                                 "/error",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",

@@ -68,11 +68,27 @@ bbd:
       topic: ${USER_CHANGED_TOPIC:erp.user.changed.v1}
       # Redis Snapshot 무효화 작업 전용 consumer group.
       snapshot-consumer-group: ${USER_SNAPSHOT_CONSUMER_GROUP:user-snapshot-projector-v1}
+      dlt-recovery-consumer-group: ${USER_DLT_RECOVERY_CONSUMER_GROUP:user-snapshot-dlt-recovery-v1}
+      dlt-suffix: ${USER_EVENT_DLT_SUFFIX:.DLT}
+      topic-partitions: ${USER_EVENT_TOPIC_PARTITIONS:1}
+      topic-replicas: ${USER_EVENT_TOPIC_REPLICAS:1}
       # security-core의 bbd.security.user-snapshot-cache-key-prefix와 같은 값 사용.
       cache-key-prefix: ${USER_SNAPSHOT_CACHE_KEY_PREFIX:user:snapshot:}
       outbox-batch-size: ${USER_OUTBOX_BATCH_SIZE:100}
       publish-delay-ms: ${USER_OUTBOX_PUBLISH_DELAY_MS:1000}
-      send-timeout-ms: ${USER_EVENT_SEND_TIMEOUTㅃ_MS:5000}
+      send-timeout-ms: ${USER_EVENT_SEND_TIMEOUT_MS:5000}
+      consumer-retry-delay-ms: ${USER_EVENT_CONSUMER_RETRY_DELAY_MS:1000}
+      consumer-retry-max-attempts: ${USER_EVENT_CONSUMER_RETRY_MAX_ATTEMPTS:3}
+      dlt-recovery-delay-ms: ${USER_EVENT_DLT_RECOVERY_DELAY_MS:30000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 # Swagger
 springdoc:
@@ -81,7 +97,6 @@ springdoc:
     operations-sorter: alpha
     config-url: /user/v3/api-docs/swagger-config
     url: /user/v3/api-docs
-
 
 
 
