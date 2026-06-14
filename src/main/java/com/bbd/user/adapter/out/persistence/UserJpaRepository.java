@@ -13,4 +13,8 @@ import java.util.Optional;
 public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
 
     Optional<UserJpaEntity> findByKeycloakSub(String keycloakSub);
+
+    Optional<UserJpaEntity> findByEmployeeNumber(String employeeNumber);
+
+    Optional<UserJpaEntity> findByUsername(String username);
 }
