@@ -6,13 +6,16 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /*
- @ConfigurationPropertiesScan: application.yml의 bbd.user.events.* 값을
- UserEventProperties 같은 설정 객체에 바인딩한다.
+ @ConfigurationPropertiesScan:
+ application.yml의 bbd.user.events.*, bbd.user.scim.* 값을
+ UserEventProperties, ScimProperties 같은 설정 객체에 바인딩한다.
 
  @EnableScheduling:
- Outbox에 저장된 사용자 변경 이벤트를 Kafka로 발행한다.
- Kafka Consumer는 Redis Snapshot을 다시 삭제해
- 즉시 삭제 실패를 복구하고 변경 이벤트 전달을 보장한다.
+ user_outbox 테이블의 PENDING 이벤트를 주기적으로 조회해서
+ Kafka로 발행하는 UserOutboxPublisher를 실행한다.
+
+ Kafka/Redis 연동을 사용하지 않는 환경에서는
+ bbd.user.events.enabled=false로 관련 Bean 자체를 만들지 않는다.
  */
 @SpringBootApplication
 @ConfigurationPropertiesScan
