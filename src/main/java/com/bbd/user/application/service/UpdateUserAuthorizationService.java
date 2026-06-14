@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  처리 순서:
 
  1. JWT sub로 변경 요청자 조회
- 2. 요청자가 ACTIVE + HQ_MANAGER인지 검사
+ 2. 요청자가 ACTIVE + ADMIN/HQ_MANAGER인지 검사
  3. 변경 대상 사용자 조회
  4. User 도메인 규칙으로 새 상태 생성
  5. users 테이블 수정
@@ -95,7 +95,8 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
 
      PENDING 사용자는 아직 승인되지 않았으므로 변경 권한이 없고,
      INACTIVE 사용자도 업무 기능을 수행할 수 없다.
-     최종적으로 ACTIVE 상태의 HQ_MANAGER만 다른 사용자의 인가 정보를 변경할 수 있다.
+     최종적으로 ACTIVE 상태의 ADMIN 또는 HQ_MANAGER만
+     다른 사용자의 인가 정보를 변경할 수 있다.
      */
     private void authorizeActor(User actor) {
         if (actor.getStatus() == UserStatus.PENDING) {
@@ -106,7 +107,10 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
             throw new ApiException(ErrorCode.USER_INACTIVE);
         }
 
-        if (!actor.hasRole(UserRole.HQ_MANAGER)) {
+        boolean canManageUsers = actor.hasRole(UserRole.ADMIN)
+                || actor.hasRole(UserRole.HQ_MANAGER);
+
+        if (!canManageUsers) {
             throw new ApiException(ErrorCode.AUTH_FORBIDDEN);
         }
     }
