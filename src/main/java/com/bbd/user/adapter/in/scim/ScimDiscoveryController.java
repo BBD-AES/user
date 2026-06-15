@@ -24,7 +24,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(
         value = "/scim/v2",
-        produces = {ScimConstants.MEDIA_TYPE, APPLICATION_JSON_VALUE}
+        produces = {
+                ScimConstants.MEDIA_TYPE,
+                APPLICATION_JSON_VALUE
+        }
 )
 public class ScimDiscoveryController {
 
@@ -37,18 +40,37 @@ public class ScimDiscoveryController {
     @GetMapping("/ServiceProviderConfig")
     public Map<String, Object> serviceProviderConfig() {
         return Map.of(
-                "schemas", List.of("urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"),
-                "patch", Map.of("supported", true),
-                "bulk", Map.of("supported", false, "maxOperations", 0, "maxPayloadSize", 0),
-                "filter", Map.of("supported", true, "maxResults", 200),
-                "changePassword", Map.of("supported", false),
-                "sort", Map.of("supported", false),
-                "etag", Map.of("supported", true),
-                "authenticationSchemes", List.of(
+                "schemas",
+                List.of(
+                        "urn:ietf:params:scim:schemas:core:2.0:"
+                                + "ServiceProviderConfig"
+                ),
+                "patch",
+                Map.of("supported", true),
+                "bulk",
+                Map.of(
+                        "supported", false,
+                        "maxOperations", 0,
+                        "maxPayloadSize", 0
+                ),
+                "filter",
+                Map.of(
+                        "supported", true,
+                        "maxResults", 200
+                ),
+                "changePassword",
+                Map.of("supported", false),
+                "sort",
+                Map.of("supported", false),
+                "etag",
+                Map.of("supported", true),
+                "authenticationSchemes",
+                List.of(
                         Map.of(
                                 "type", "x509",
                                 "name", "Mutual TLS",
-                                "description", "midPoint client certificate authentication"
+                                "description",
+                                "midPoint client certificate authentication"
                         )
                 )
         );
@@ -64,19 +86,38 @@ public class ScimDiscoveryController {
     @GetMapping("/ResourceTypes")
     public ScimListResponse<Map<String, Object>> resourceTypes() {
         Map<String, Object> user = Map.of(
-                "schemas", List.of("urn:ietf:params:scim:schemas:core:2.0:ResourceType"),
+                "schemas",
+                List.of(
+                        "urn:ietf:params:scim:schemas:"
+                                + "core:2.0:ResourceType"
+                ),
                 "id", "User",
                 "name", "User",
                 "endpoint", "/Users",
                 "schema", ScimConstants.CORE_USER_SCHEMA,
-                "schemaExtensions", List.of(
-                        Map.of("schema", ScimConstants.ENTERPRISE_USER_SCHEMA, "required", true),
-                        Map.of("schema", ScimConstants.ERP_USER_SCHEMA, "required", true)
+                "schemaExtensions",
+                List.of(
+                        Map.of(
+                                "schema",
+                                ScimConstants.ENTERPRISE_USER_SCHEMA,
+                                "required",
+                                true
+                        ),
+                        Map.of(
+                                "schema",
+                                ScimConstants.ERP_USER_SCHEMA,
+                                "required",
+                                true
+                        )
                 )
         );
 
         Map<String, Object> group = Map.of(
-                "schemas", List.of("urn:ietf:params:scim:schemas:core:2.0:ResourceType"),
+                "schemas",
+                List.of(
+                        "urn:ietf:params:scim:schemas:"
+                                + "core:2.0:ResourceType"
+                ),
                 "id", "Group",
                 "name", "Group",
                 "endpoint", "/Groups",
@@ -100,45 +141,147 @@ public class ScimDiscoveryController {
                         ScimConstants.CORE_USER_SCHEMA,
                         "User",
                         List.of(
-                                attribute("userName", "string", true, "server"),
-                                attribute("externalId", "string", true, "server"),
-                                attribute("displayName", "string", false, "none"),
-                                attribute("title", "string", false, "none"),
-                                attribute("active", "boolean", false, "none"),
-                                attribute("roles", "complex", false, "none")
+                                attribute(
+                                        "userName",
+                                        "string",
+                                        true,
+                                        "server"
+                                ),
+                                attribute(
+                                        "externalId",
+                                        "string",
+                                        true,
+                                        "server"
+                                ),
+                                attribute(
+                                        "userType",
+                                        "string",
+                                        false,
+                                        "none"
+                                ),
+                                attribute(
+                                        "displayName",
+                                        "string",
+                                        false,
+                                        "none"
+                                ),
+                                attribute(
+                                        "nickName",
+                                        "string",
+                                        false,
+                                        "none"
+                                ),
+                                attribute(
+                                        "locale",
+                                        "string",
+                                        false,
+                                        "none"
+                                ),
+                                attribute(
+                                        "title",
+                                        "string",
+                                        false,
+                                        "none"
+                                ),
+                                attribute(
+                                        "active",
+                                        "boolean",
+                                        false,
+                                        "none"
+                                ),
+                                attribute(
+                                        "roles",
+                                        "complex",
+                                        false,
+                                        "none"
+                                )
                         )
                 ),
                 schema(
                         ScimConstants.CORE_GROUP_SCHEMA,
                         "Group",
                         List.of(
-                                attribute("displayName", "string", true, "server"),
-                                attribute("externalId", "string", false, "server"),
-                                attribute("members", "complex", false, "none")
+                                attribute(
+                                        "displayName",
+                                        "string",
+                                        true,
+                                        "server"
+                                ),
+                                attribute(
+                                        "externalId",
+                                        "string",
+                                        false,
+                                        "server"
+                                ),
+                                attribute(
+                                        "members",
+                                        "complex",
+                                        false,
+                                        "none"
+                                )
                         )
                 ),
                 schema(
                         ScimConstants.ENTERPRISE_USER_SCHEMA,
                         "EnterpriseUser",
                         List.of(
-                                attribute("employeeNumber", "string", true, "server"),
-                                attribute("organization", "string", true, "none"),
-                                attribute("department", "string", false, "none")
+                                attribute(
+                                        "employeeNumber",
+                                        "string",
+                                        true,
+                                        "server"
+                                ),
+                                attribute(
+                                        "organization",
+                                        "string",
+                                        true,
+                                        "none"
+                                ),
+                                attribute(
+                                        "department",
+                                        "string",
+                                        false,
+                                        "none"
+                                )
                         )
                 ),
                 schema(
                         ScimConstants.ERP_USER_SCHEMA,
                         "BbdErpUser",
                         List.of(
-                                attribute("role", "string", true, "none"),
-                                attribute("tenancyType", "string", true, "none"),
-                                attribute("tenancyName", "string", false, "none"),
-                                attribute("approvalStatus", "string", false, "none")
+                                attribute(
+                                        "role",
+                                        "string",
+                                        true,
+                                        "none"
+                                ),
+                                attribute(
+                                        "tenancyType",
+                                        "string",
+                                        true,
+                                        "none"
+                                ),
+                                attribute(
+                                        "tenancyName",
+                                        "string",
+                                        false,
+                                        "none"
+                                ),
+                                attribute(
+                                        "approvalStatus",
+                                        "string",
+                                        false,
+                                        "none"
+                                )
                         )
                 )
         );
 
-        return ScimListResponse.of(resources, resources.size(), 1);
+        return ScimListResponse.of(
+                resources,
+                resources.size(),
+                1
+        );
     }
 
     // Schema discovery 항목의 공통 구조를 생성한다.
@@ -148,10 +291,15 @@ public class ScimDiscoveryController {
             List<Map<String, Object>> attributes
     ) {
         return Map.of(
-                "schemas", List.of("urn:ietf:params:scim:schemas:core:2.0:Schema"),
+                "schemas",
+                List.of(
+                        "urn:ietf:params:scim:schemas:"
+                                + "core:2.0:Schema"
+                ),
                 "id", id,
                 "name", name,
-                "description", name + " schema supported by BBD User Service",
+                "description",
+                name + " schema supported by BBD User Service",
                 "attributes", attributes
         );
     }
