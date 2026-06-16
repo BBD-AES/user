@@ -1,6 +1,7 @@
 package com.bbd.user.adapter.in.web;
 
 import com.bbd.user.adapter.in.web.request.UpdateUserAuthorizationRequest;
+import com.bbd.user.adapter.in.web.response.UserSearchResponse;
 import com.bbd.user.adapter.in.web.response.UserSnapshotResponse;
 import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
 import com.bbd.user.application.model.UserSearchCondition;
@@ -71,7 +72,6 @@ public class AdminUserController {
         );
     }
 
-    /*
     /*
      status, role, tenancy를 한 요청에서 함께 변경한다.
 

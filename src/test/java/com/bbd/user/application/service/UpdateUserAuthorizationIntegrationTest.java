@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "spring.datasource.url=jdbc:h2:mem:user-integration;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
         "spring.datasource.username=sa",
         "spring.datasource.password=",
+        "spring.datasource.driver-class-name=org.h2.Driver",
         "spring.jpa.hibernate.ddl-auto=none",
         "spring.flyway.enabled=true",
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/test-jwks",
