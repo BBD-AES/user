@@ -1,5 +1,7 @@
 package com.bbd.user.application.port.out;
 
+import com.bbd.user.application.model.UserSearchCondition;
+import com.bbd.user.application.model.UserSearchPage;
 import com.bbd.user.domain.User;
 
 import java.util.List;
@@ -33,5 +35,9 @@ public interface LoadUserPort {
 
     default long countAll() {
         return 0L;
+    }
+
+    default UserSearchPage searchUsers(UserSearchCondition condition) {
+        return new UserSearchPage(List.of(), 0L, condition.page(), condition.size());
     }
 }
