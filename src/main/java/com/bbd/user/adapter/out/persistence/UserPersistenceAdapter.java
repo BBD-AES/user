@@ -1,14 +1,23 @@
 package com.bbd.user.adapter.out.persistence;
 
+import com.bbd.user.application.model.UserSearchCondition;
+import com.bbd.user.application.model.UserSearchPage;
 import com.bbd.user.application.port.out.LoadUserPort;
 import com.bbd.user.application.port.out.SaveUserPort;
+import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.User;
+import com.bbd.user.domain.UserRole;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /*
@@ -68,6 +77,27 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
     }
 
     @Override
+    public UserSearchPage searchUsers(UserSearchCondition condition) {
+        Page<UserJpaEntity> result = userJpaRepository.findAll(
+                searchSpec(condition),
+                PageRequest.of(
+                        condition.page(),
+                        condition.size(),
+                        Sort.by(Sort.Direction.ASC, "id")
+                )
+        );
+
+        return new UserSearchPage(
+                result.getContent().stream()
+                        .map(UserJpaEntity::toDomain)
+                        .toList(),
+                result.getTotalElements(),
+                result.getNumber(),
+                result.getSize()
+        );
+    }
+
+    @Override
     public User save(User user) {
         if (user.getId() == null) {
             return userJpaRepository.saveAndFlush(UserJpaEntity.from(user)).toDomain();
@@ -83,5 +113,48 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
          반환된 User의 version을 같은 트랜잭션에 저장되는 UserChangedEvent에 사용한다.
          */
         return userJpaRepository.saveAndFlush(entity).toDomain();
+    }
+
+    private Specification<UserJpaEntity> searchSpec(UserSearchCondition condition) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (condition.employeeNumber() != null) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("employeeNumber")),
+                        contains(condition.employeeNumber())
+                ));
+            }
+
+            if (condition.name() != null) {
+                String name = contains(condition.name());
+                predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.like(
+                                criteriaBuilder.lower(root.get("displayName")),
+                                name
+                        ),
+                        criteriaBuilder.like(
+                                criteriaBuilder.lower(root.get("username")),
+                                name
+                        )
+                ));
+            }
+
+            UserRole role = condition.role();
+            if (role != null) {
+                predicates.add(criteriaBuilder.equal(root.get("role"), role));
+            }
+
+            TenancyType tenancyType = condition.tenancyType();
+            if (tenancyType != null) {
+                predicates.add(criteriaBuilder.equal(root.get("tenancyType"), tenancyType));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+        };
+    }
+
+    private String contains(String value) {
+        return "%" + value.toLowerCase(Locale.ROOT) + "%";
     }
 }
