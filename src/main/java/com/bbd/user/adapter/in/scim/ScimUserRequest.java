@@ -38,8 +38,11 @@ public record ScimUserRequest(
         List<String> schemas,
         String externalId,
         String userName,
+        String userType,
         String displayName,
         ScimName name,
+        String nickName,
+        String locale,
         String title,
         List<ScimEmail> emails,
         List<ScimRole> roles,
@@ -59,7 +62,7 @@ public record ScimUserRequest(
      */
     public CreateProvisionedUserCommand toCreateCommand() {
         return new CreateProvisionedUserCommand(
-                externalId,
+                resolvedKeycloakSub(),
                 enterprise == null ? null : enterprise.employeeNumber(),
                 userName,
                 resolvedDisplayName(),
@@ -70,6 +73,18 @@ public record ScimUserRequest(
                 resolvedTenancyName(),
                 active == null || active
         );
+    }
+
+    /*
+     externalId를 우선 사용한다.
+
+     ExclamationLabs SCIM2 ConnId connector는 User 생성 요청에서 externalId를
+     직렬화하지 않으므로, midPoint 연동에서는 userType에도 같은 값을 매핑한다.
+     */
+    private String resolvedKeycloakSub() {
+        return externalId == null || externalId.isBlank()
+                ? userType
+                : externalId;
     }
 
     /*
@@ -116,29 +131,40 @@ public record ScimUserRequest(
 
     /*
      ERP extension role을 우선하고, 없으면 표준 roles 배열의 첫 역할을 사용한다.
+     SCIM2 ConnId connector가 roles를 누락한 경우에는 nickName을 호환값으로 사용한다.
      */
     private UserRole resolvedRole() {
         if (erp != null && erp.role() != null) {
             return erp.role();
         }
-        if (roles == null || roles.isEmpty() || roles.getFirst().value() == null) {
-            return null;
+        if (roles != null
+                && !roles.isEmpty()
+                && roles.getFirst().value() != null) {
+            return enumValue(UserRole.class, roles.getFirst().value());
         }
-        return enumValue(UserRole.class, roles.getFirst().value());
+        return nickName == null
+                ? null
+                : enumValue(UserRole.class, nickName);
     }
 
     /*
      ERP extension tenancyType을 우선하고,
      없으면 Enterprise organization의 HQ/BRANCH 문자열을 사용한다.
+     SCIM2 ConnId connector가 Enterprise extension을 누락한 경우에는 locale을 사용한다.
      */
     private TenancyType resolvedTenancyType() {
         if (erp != null && erp.tenancyType() != null) {
             return erp.tenancyType();
         }
-        if (enterprise == null || enterprise.organization() == null) {
-            return null;
+        if (enterprise != null && enterprise.organization() != null) {
+            return enumValue(
+                    TenancyType.class,
+                    enterprise.organization()
+            );
         }
-        return enumValue(TenancyType.class, enterprise.organization());
+        return locale == null
+                ? null
+                : enumValue(TenancyType.class, locale);
     }
 
     /*
@@ -147,7 +173,10 @@ public record ScimUserRequest(
      */
     private <E extends Enum<E>> E enumValue(Class<E> type, String value) {
         try {
-            return Enum.valueOf(type, value.toUpperCase(Locale.ROOT));
+            return Enum.valueOf(
+                    type,
+                    value.toUpperCase(Locale.ROOT)
+            );
         } catch (IllegalArgumentException exception) {
             throw new ScimException(
                     HttpStatus.BAD_REQUEST,
@@ -178,11 +207,19 @@ public record ScimUserRequest(
     }
 
     // SCIM Core User의 multi-valued emails 항목.
-    public record ScimEmail(String value, String type, Boolean primary) {
+    public record ScimEmail(
+            String value,
+            String type,
+            Boolean primary
+    ) {
     }
 
     // SCIM Core User의 multi-valued roles 항목. ERP는 대표 역할 하나를 사용한다.
-    public record ScimRole(String value, String display, Boolean primary) {
+    public record ScimRole(
+            String value,
+            String display,
+            Boolean primary
+    ) {
     }
 
     // RFC 7643 Enterprise User extension에서 사용하는 사번과 조직 속성.
