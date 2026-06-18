@@ -6,6 +6,7 @@ import com.bbd.user.application.port.in.GetUserSnapshotUseCase;
 import com.bbd.user.global.error.ApiException;
 import com.bbd.user.global.error.dto.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  향후 사용자 요청과 관계없는 시스템 호출이 필요하면
  client_credentials 기반 서비스 계정과 별도 scope 검증을 추가해야 한다.
  */
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class InternalUserSnapshotController {
@@ -43,7 +45,7 @@ public class InternalUserSnapshotController {
         }
 
         UserSnapshotResult result = getUserSnapshotUseCase.getSnapshotByKeycloakSub(keycloakSub);
-
+        log.info("❤️❤️❤️❤️❤️❤️❤️❤️❤️ {}를 유저 스냅샷을 통해 조회하였습니다.", result.displayName());
         return UserSnapshotResponse.from(result);
     }
 }

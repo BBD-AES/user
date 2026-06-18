@@ -19,7 +19,7 @@ public class SwaggerConfig {
                         .description("Local 내 컴퓨터"))
 
                 .addServersItem(new Server()
-                        .url("http://100.73.142.41:8081/user")
+                        .url("http://100.73.142.41/user")
                         .description("강의실 노트북"))
 
                 .addServersItem(new Server()
