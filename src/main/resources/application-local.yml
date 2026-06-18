@@ -74,6 +74,7 @@ bbd:
     scim:
       enabled: ${SCIM_ENABLED:false}
       allowed-client-common-name: ${SCIM_CLIENT_COMMON_NAME:midpoint}
+      required-role: ${SCIM_REQUIRED_ROLE:SCIM_CLIENT}
 
     events:
       enabled: ${USER_EVENTS_ENABLED:false}
