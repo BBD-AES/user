@@ -24,7 +24,9 @@ public class SwaggerConfig {
 
                 .addServersItem(new Server()
                         .url("http://192.168.200.220/user")
-                        .description("Nginx"));
-
+                        .description("Nginx"))
+                .addServersItem(new Server()
+                        .url("https://bbd.inwoohub.com/user")
+                        .description("inwoohub"));
     }
 }
