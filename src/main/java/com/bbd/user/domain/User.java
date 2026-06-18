@@ -148,7 +148,8 @@ public class User {
                 displayName,
                 email,
                 position,
-                sourceActive ? UserStatus.PENDING : UserStatus.INACTIVE,
+                // 임시 ACTIVE로 처리 (원래는 PENDING)
+                sourceActive ? UserStatus.ACTIVE : UserStatus.INACTIVE,
                 role,
                 tenancyType,
                 tenancyName,
