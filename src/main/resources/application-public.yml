@@ -71,10 +71,11 @@ spring:
 # Flyway V3 적용과 Kafka/Redis 네트워크 검증 후 true로 전환하는 단계적 배포를 사용한다.
 bbd:
   user:
-    # 배포 환경에서도 mTLS key/trust store 배포가 끝난 뒤 true로 전환한다.
+    # SCIM은 admin-be client credentials JWT와 향후 midPoint mTLS를 함께 지원한다.
     scim:
       enabled: ${SCIM_ENABLED:false}
       allowed-client-common-name: ${SCIM_CLIENT_COMMON_NAME:midpoint}
+      required-role: ${SCIM_REQUIRED_ROLE:SCIM_CLIENT}
 
     events:
       enabled: ${USER_EVENTS_ENABLED:false}
