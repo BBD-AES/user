@@ -71,7 +71,7 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
         User saved = saveUserPort.save(changed);
 
         // INACTIVE 전환은 일반 권한 변경과 구분해서 event type을 기록한다.
-        UserChangeType eventType = saved.getStatus() == UserStatus.INACTIVE
+        UserChangeType eventType = saved.status() == UserStatus.INACTIVE
                 ? UserChangeType.USER_DEACTIVATED
                 : UserChangeType.USER_AUTHORIZATION_CHANGED;
 
@@ -99,7 +99,7 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
      다른 사용자의 인가 정보를 변경할 수 있다.
      */
     private void authorizeActor(User actor) {
-        if (actor.getStatus() == UserStatus.PENDING) {
+        if (actor.status() == UserStatus.PENDING) {
             throw new ApiException(ErrorCode.USER_PENDING);
         }
 

@@ -13,7 +13,6 @@ import com.bbd.user.domain.UserRole;
 public record UpdateProvisionedUserCommand(
         Long userId,
         String employeeNumber,
-        String username,
         String displayName,
         String email,
         String position,

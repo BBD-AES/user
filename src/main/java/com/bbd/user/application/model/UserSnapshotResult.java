@@ -17,7 +17,6 @@ public record UserSnapshotResult(
         Long userId,
         String keycloakSub,
         String employeeNumber,
-        String username,
         String displayName,
         String email,
         String position,
@@ -30,18 +29,17 @@ public record UserSnapshotResult(
 
     public static UserSnapshotResult from(User user) {
         return new UserSnapshotResult(
-                user.getId(),
-                user.getKeycloakSub(),
-                user.getEmployeeNumber(),
-                user.getUsername(),
-                user.getDisplayName(),
-                user.getEmail(),
-                user.getPosition(),
-                user.getStatus(),
-                user.getRole(),
-                user.getTenancyType(),
-                user.getTenancyName(),
-                user.getVersion()
+                user.id(),
+                user.keycloakSub(),
+                user.employeeNumber(),
+                user.displayName(),
+                user.email(),
+                user.position(),
+                user.status(),
+                user.role(),
+                user.tenancyType(),
+                user.tenancyName(),
+                user.version()
         );
     }
 }

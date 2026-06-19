@@ -54,7 +54,7 @@ public class ScimFilterParser {
             return new ParsedFilter(ProvisionedUserSearchField.KEYCLOAK_SUB, value);
         }
         if ("userName".equalsIgnoreCase(attribute)) {
-            return new ParsedFilter(ProvisionedUserSearchField.USERNAME, value);
+            return new ParsedFilter(ProvisionedUserSearchField.EMPLOYEE_NUMBER, value);
         }
         if ((ScimConstants.ENTERPRISE_USER_SCHEMA + ":employeeNumber")
                 .equalsIgnoreCase(attribute)) {

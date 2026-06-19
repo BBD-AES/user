@@ -5,6 +5,5 @@ package com.bbd.user.application.model;
  */
 public enum ProvisionedUserSearchField {
     KEYCLOAK_SUB,
-    EMPLOYEE_NUMBER,
-    USERNAME
+    EMPLOYEE_NUMBER
 }

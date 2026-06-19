@@ -19,7 +19,7 @@ import java.util.Locale;
 
  주요 매핑:
  - externalId: Keycloak sub. User Service와 JWT 사용자를 연결하는 불변 식별자
- - userName: 로그인 ID
+ - userName: SCIM 표준 User 대표 계정명. ERP에서는 employeeNumber로 해석한다.
  - displayName/name.formatted: 화면 표시 이름
  - title: 직급 또는 직책
  - emails: 업무 이메일
@@ -63,8 +63,7 @@ public record ScimUserRequest(
     public CreateProvisionedUserCommand toCreateCommand() {
         return new CreateProvisionedUserCommand(
                 resolvedKeycloakSub(),
-                enterprise == null ? null : enterprise.employeeNumber(),
-                userName,
+                resolvedEmployeeNumber(),
                 resolvedDisplayName(),
                 primaryEmail(),
                 title,
@@ -96,8 +95,7 @@ public record ScimUserRequest(
     public UpdateProvisionedUserCommand toUpdateCommand(Long userId) {
         return new UpdateProvisionedUserCommand(
                 userId,
-                enterprise == null ? null : enterprise.employeeNumber(),
-                userName,
+                resolvedEmployeeNumber(),
                 resolvedDisplayName(),
                 primaryEmail(),
                 title,
@@ -106,6 +104,30 @@ public record ScimUserRequest(
                 resolvedTenancyName(),
                 active
         );
+    }
+
+    /*
+     SCIM userName은 표준 필드로 유지하지만 User DB에는 username을 저장하지 않는다.
+
+     Enterprise extension의 employeeNumber가 있으면 업무 도메인 값으로 우선 사용한다.
+     employeeNumber가 없고 userName만 있으면 SCIM 호환을 위해 userName을 사번으로 해석한다.
+     둘 다 있는데 서로 다르면 같은 사용자를 두 식별자로 표현한 것이므로 invalidValue로 거절한다.
+     */
+    private String resolvedEmployeeNumber() {
+        String enterpriseEmployeeNumber = enterprise == null ? null : enterprise.employeeNumber();
+
+        if (hasText(enterpriseEmployeeNumber) && hasText(userName)
+                && !enterpriseEmployeeNumber.equals(userName)) {
+            throw new ScimException(
+                    HttpStatus.BAD_REQUEST,
+                    "invalidValue",
+                    "SCIM userName과 employeeNumber는 같아야 합니다."
+            );
+        }
+
+        return hasText(enterpriseEmployeeNumber)
+                ? enterpriseEmployeeNumber
+                : userName;
     }
 
     /*
@@ -200,6 +222,10 @@ public record ScimUserRequest(
                 .findFirst()
                 .orElse(emails.getFirst())
                 .value();
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     // SCIM Core User의 name 복합 속성 중 현재 사용하는 formatted 값.

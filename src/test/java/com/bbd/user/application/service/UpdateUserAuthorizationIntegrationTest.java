@@ -96,7 +96,6 @@ class UpdateUserAuthorizationIntegrationTest {
                 INSERT INTO users (
                     keycloak_sub,
                     employee_number,
-                    username,
                     display_name,
                     email,
                     position,
@@ -105,11 +104,10 @@ class UpdateUserAuthorizationIntegrationTest {
                     tenancy_type,
                     tenancy_name,
                     version
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
                 """,
                 keycloakSub,
                 employeeNumber,
-                employeeNumber.toLowerCase(),
                 employeeNumber,
                 employeeNumber.toLowerCase() + "@example.com",
                 "직원",

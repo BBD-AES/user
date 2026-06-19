@@ -25,10 +25,6 @@ public interface LoadUserPort {
         return Optional.empty();
     }
 
-    default Optional<User> findByUsername(String username) {
-        return Optional.empty();
-    }
-
     default List<User> findAll(int offset, int count) {
         return List.of();
     }

@@ -23,7 +23,6 @@ import java.util.Optional;
  midPoint가 전달한 ERP 대상 사용자의 생성, reconciliation, 비활성화를 처리한다.
 
  모든 변경은 users 저장과 user_outbox 저장을 같은 트랜잭션에서 처리한다.
- commit 이후 Redis 즉시 삭제와 Kafka 복구 경로는 Phase 6 구현을 그대로 재사용한다.
  */
 @Service
 @RequiredArgsConstructor
@@ -40,12 +39,11 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
     @Transactional
     public ProvisionedUserResult create(CreateProvisionedUserCommand command) {
         validateCreate(command);
-        rejectDuplicate(command.keycloakSub(), command.employeeNumber(), command.username(), null);
+        rejectDuplicate(command.keycloakSub(), command.employeeNumber(), null);
 
         User created = saveUserPort.save(User.pendingProvisioning(
                 command.keycloakSub(),
                 command.employeeNumber(),
-                command.username(),
                 command.displayName(),
                 command.email(),
                 command.position(),
@@ -66,15 +64,13 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
         rejectDuplicate(
-                current.getKeycloakSub(),
+                current.keycloakSub(),
                 command.employeeNumber(),
-                command.username(),
-                current.getId()
+                current.id()
         );
 
         User saved = saveUserPort.save(current.updateProvisioning(
                 command.employeeNumber(),
-                command.username(),
                 command.displayName(),
                 command.email(),
                 command.position(),
@@ -84,7 +80,7 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
                 command.sourceActive()
         ));
 
-        UserChangeType eventType = saved.getStatus() == UserStatus.INACTIVE
+        UserChangeType eventType = saved.status() == UserStatus.INACTIVE
                 ? UserChangeType.USER_DEACTIVATED
                 : UserChangeType.USER_PROFILE_CHANGED;
 
@@ -143,7 +139,6 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
         return switch (field) {
             case KEYCLOAK_SUB -> loadUserPort.findByKeycloakSub(value);
             case EMPLOYEE_NUMBER -> loadUserPort.findByEmployeeNumber(value);
-            case USERNAME -> loadUserPort.findByUsername(value);
         };
     }
 
@@ -154,9 +149,6 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
         if (command.employeeNumber() == null || command.employeeNumber().isBlank()) {
             throw new ApiException(ErrorCode.USER_INVALID_EMPLOYEE_NUMBER);
         }
-        if (command.username() == null || command.username().isBlank()) {
-            throw new ApiException(ErrorCode.USER_INVALID_USERNAME);
-        }
         if (command.role() == null || command.tenancyType() == null) {
             throw new ApiException(ErrorCode.VALIDATION_ERROR);
         }
@@ -165,7 +157,6 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
     private void rejectDuplicate(
             String keycloakSub,
             String employeeNumber,
-            String username,
             Long currentUserId
     ) {
         rejectIfOtherUser(
@@ -181,18 +172,10 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
                     ErrorCode.USER_DUPLICATED_EMPLOYEE_NUMBER
             );
         }
-
-        if (username != null) {
-            rejectIfOtherUser(
-                    loadUserPort.findByUsername(username),
-                    currentUserId,
-                    ErrorCode.USER_DUPLICATED_USERNAME
-            );
-        }
     }
 
     private void rejectIfOtherUser(Optional<User> existing, Long currentUserId, ErrorCode errorCode) {
-        if (existing.isPresent() && !existing.get().getId().equals(currentUserId)) {
+        if (existing.isPresent() && !existing.get().id().equals(currentUserId)) {
             throw new ApiException(errorCode);
         }
     }

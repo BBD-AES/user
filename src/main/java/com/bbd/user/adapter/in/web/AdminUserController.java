@@ -44,7 +44,7 @@ public class AdminUserController {
   지원 조건:
   - 조건 없음: 전체 목록
   - employeeNumber: 사번 부분 일치
-  - name: displayName 또는 username 부분 일치
+  - displayName 또는 employeeNumber
   - role: 역할 정확히 일치
   - tenancyType: HQ/BRANCH 정확히 일치
   - role + tenancyType: 지점/본사 안에서 역할별 조회

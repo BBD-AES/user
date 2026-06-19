@@ -54,12 +54,6 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        return userJpaRepository.findByUsername(username)
-                .map(UserJpaEntity::toDomain);
-    }
-
-    @Override
     public List<User> findAll(int offset, int count) {
         int page = offset / count;
 
@@ -99,11 +93,11 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
 
     @Override
     public User save(User user) {
-        if (user.getId() == null) {
+        if (user.id() == null) {
             return userJpaRepository.saveAndFlush(UserJpaEntity.from(user)).toDomain();
         }
 
-        UserJpaEntity entity = userJpaRepository.findById(user.getId())
+        UserJpaEntity entity = userJpaRepository.findById(user.id())
                 .orElseThrow(() -> new IllegalStateException("수정할 사용자가 존재하지 않습니다."));
 
         entity.updateFrom(user);
@@ -134,7 +128,7 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
                                 name
                         ),
                         criteriaBuilder.like(
-                                criteriaBuilder.lower(root.get("username")),
+                                criteriaBuilder.lower(root.get("employeeNumber")),
                                 name
                         )
                 ));

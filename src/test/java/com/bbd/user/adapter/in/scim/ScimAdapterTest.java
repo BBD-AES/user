@@ -64,7 +64,7 @@ class ScimAdapterTest {
         ScimUserRequest request = new ScimUserRequest(
                 List.of(ScimConstants.CORE_USER_SCHEMA),
                 null,
-                "erp-user",
+                "E-001",
                 "keycloak-sub",
                 null,
                 null,
@@ -103,7 +103,7 @@ class ScimAdapterTest {
         ScimUserRequest request = new ScimUserRequest(
                 List.of(ScimConstants.CORE_USER_SCHEMA),
                 null,
-                "erp-user",
+                "E-001",
                 "keycloak-sub",
                 null,
                 null,

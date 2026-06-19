@@ -127,7 +127,7 @@ public class ScimPatchMapper {
             );
         }
         if ("userName".equalsIgnoreCase(path)) {
-            values.username = stringValue(value);
+            values.employeeNumber = stringValue(value);
             return;
         }
         if ("displayName".equalsIgnoreCase(path) || "name.formatted".equalsIgnoreCase(path)) {
@@ -257,7 +257,6 @@ public class ScimPatchMapper {
          role/tenancy처럼 필수인 enum 필드는 유효한 값만 허용한다.
          */
         private String employeeNumber;
-        private String username;
         private String displayName;
         private String email;
         private String position;
@@ -270,7 +269,6 @@ public class ScimPatchMapper {
             return new UpdateProvisionedUserCommand(
                     userId,
                     employeeNumber,
-                    username,
                     displayName,
                     email,
                     position,
