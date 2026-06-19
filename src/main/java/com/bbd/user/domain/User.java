@@ -184,7 +184,13 @@ public record User(Long id, String keycloakSub, String employeeNumber, String di
     }
 
     /*
-     사용자 인가 판단에 사용하는 상태, 역할, 소속을 변경한다.
+     status, role, tenancy 정보를 한 번에 변경한다.
+
+     현재 관리자 프론트에서는 승인/비활성 처리를 status 전용 API로 처리하므로
+     이 메서드를 직접 사용하지 않는다.
+
+     다만 운영 도구나 내부 관리 API에서 사용자의 권한/소속 정보를
+     한 번에 보정해야 할 수 있어 도메인 메서드로 유지한다.
 
      기존 User를 직접 수정하지 않고 새 User를 반환해서
      도메인 모델의 불변성을 유지한다.
@@ -210,6 +216,22 @@ public record User(Long id, String keycloakSub, String employeeNumber, String di
                 Objects.requireNonNull(newRole, "role은 필수입니다."),
                 Objects.requireNonNull(newTenancyType, "tenancyType은 필수입니다."),
                 newTenancyName,
+                version
+        );
+    }
+
+    public User changeStatus(UserStatus newStatus) {
+        return new User(
+                id,
+                keycloakSub,
+                employeeNumber,
+                displayName,
+                email,
+                position,
+                Objects.requireNonNull(newStatus, "status는 필수입니다."),
+                role,
+                tenancyType,
+                tenancyName,
                 version
         );
     }

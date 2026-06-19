@@ -96,6 +96,11 @@ bbd:
       consumer-retry-max-attempts: ${USER_EVENT_CONSUMER_RETRY_MAX_ATTEMPTS:3}
       dlt-recovery-delay-ms: ${USER_EVENT_DLT_RECOVERY_DELAY_MS:30000}
 
+  security:
+    enabled: false
+    user-snapshot-cache-key-prefix: ${USER_SNAPSHOT_CACHE_KEY_PREFIX:user:snapshot:}
+    user-snapshot-cache-ttl-seconds: ${USER_SNAPSHOT_CACHE_TTL_SECONDS:300}
+
 management:
   endpoints:
     web:

@@ -50,16 +50,9 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
     @Transactional
     public UserSnapshotResult updateAuthorization(UpdateUserAuthorizationCommand command) {
         // JWT sub를 신뢰 가능한 사용자 원본인 User DB와 매핑한다.
-        User actor = loadUserPort.findByKeycloakSub(command.actorKeycloakSub())
-                .orElseThrow(() -> new ApiException(ErrorCode.AUTH_UNAUTHENTICATED));
-
-        authorizeActor(actor);
-
-        // 변경 대상은 URL의 userId 기준으로 조회한다.
         User target = loadUserPort.findById(command.targetUserId())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
-        // Entity를 직접 수정하지 않고 도메인 메서드로 변경 결과를 만든다.
         User changed = target.changeAuthorization(
                 command.status(),
                 command.role(),
@@ -88,30 +81,5 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
          */
         applicationEventPublisher.publishEvent(event);
         return UserSnapshotResult.from(saved);
-    }
-
-    /*
-     현재 관리자 API를 호출할 수 있는 최소 정책.
-
-     PENDING 사용자는 아직 승인되지 않았으므로 변경 권한이 없고,
-     INACTIVE 사용자도 업무 기능을 수행할 수 없다.
-     최종적으로 ACTIVE 상태의 ADMIN 또는 HQ_MANAGER만
-     다른 사용자의 인가 정보를 변경할 수 있다.
-     */
-    private void authorizeActor(User actor) {
-        if (actor.status() == UserStatus.PENDING) {
-            throw new ApiException(ErrorCode.USER_PENDING);
-        }
-
-        if (!actor.isActive()) {
-            throw new ApiException(ErrorCode.USER_INACTIVE);
-        }
-
-        boolean canManageUsers = actor.hasRole(UserRole.ADMIN)
-                || actor.hasRole(UserRole.HQ_MANAGER);
-
-        if (!canManageUsers) {
-            throw new ApiException(ErrorCode.AUTH_FORBIDDEN);
-        }
     }
 }
