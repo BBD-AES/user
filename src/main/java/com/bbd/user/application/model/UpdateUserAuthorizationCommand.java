@@ -9,9 +9,6 @@ import com.bbd.user.domain.UserStatus;
 
  Web Controller의 Request DTO를 application 계층까지 직접 전달하지 않기 위해 사용한다.
 
- actorKeycloakSub:
- JWT sub에서 가져온 변경 요청자 식별값.
-
  targetUserId:
  실제로 상태, 역할, 소속을 변경할 ERP 사용자 ID.
 

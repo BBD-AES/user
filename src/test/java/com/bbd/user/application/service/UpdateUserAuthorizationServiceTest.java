@@ -23,18 +23,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  Spring Context나 실제 DB를 사용하지 않고 stub port를 주입한다.
 
  검증 대상:
- - ACTIVE + ADMIN/HQ_MANAGER가 권한을 변경할 수 있는지
+ - target 사용자의 status, role, tenancy를 변경하는지
  - 저장 후 증가한 version이 event에도 들어가는지
  - 같은 event가 Outbox와 AFTER_COMMIT 처리 양쪽에 전달되는지
- - ADMIN/HQ_MANAGER가 아닌 사용자를 차단하는지
+
+ 호출자 권한 검사는 @RequireRole에서 처리하므로 이 테스트의 검증 대상이 아니다.
  */
 class UpdateUserAuthorizationServiceTest {
 
     @Test
-    void activeHqManagerCanChangeAuthorizationAndRecordEvent() {
-        User actor = user(1L, "manager-sub", UserStatus.ACTIVE, UserRole.HQ_MANAGER, 1L);
+    void changeAuthorizationAndRecordEvent() {
         User target = user(2L, "target-sub", UserStatus.PENDING, UserRole.BRANCH_STAFF, 3L);
-        StubUserPorts userPorts = new StubUserPorts(actor, target);
+        StubUserPorts userPorts = new StubUserPorts(target);
         StubEventPort eventPort = new StubEventPort();
         StubApplicationEventPublisher applicationEventPublisher = new StubApplicationEventPublisher();
 
@@ -58,6 +58,8 @@ class UpdateUserAuthorizationServiceTest {
 
         assertEquals(UserStatus.ACTIVE, result.status());
         assertEquals(UserRole.BRANCH_MANAGER, result.role());
+        assertEquals(TenancyType.BRANCH, result.tenancyType());
+        assertEquals("강남 지점", result.tenancyName());
         assertEquals(4L, result.version());
         assertEquals(result.keycloakSub(), eventPort.recorded.keycloakSub());
         assertEquals(result.version(), eventPort.recorded.version());
@@ -65,10 +67,9 @@ class UpdateUserAuthorizationServiceTest {
     }
 
     @Test
-    void activeAdminCanChangeAuthorization() {
-        User actor = user(1L, "admin-sub", UserStatus.ACTIVE, UserRole.ADMIN, 1L);
-        User target = user(2L, "target-sub", UserStatus.PENDING, UserRole.HQ_STAFF, 1L);
-        StubUserPorts userPorts = new StubUserPorts(actor, target);
+    void changeAuthorizationUpdatesRoleAndTenancy() {
+        User target = user(2L, "target-sub", UserStatus.PENDING, UserRole.BRANCH_STAFF, 1L);
+        StubUserPorts userPorts = new StubUserPorts(target);
 
         UpdateUserAuthorizationService service =
                 new UpdateUserAuthorizationService(userPorts, userPorts, event -> {
@@ -87,6 +88,8 @@ class UpdateUserAuthorizationServiceTest {
 
         assertEquals(UserStatus.ACTIVE, result.status());
         assertEquals(UserRole.HQ_STAFF, result.role());
+        assertEquals(TenancyType.HQ, result.tenancyType());
+        assertEquals("본사", result.tenancyName());
     }
 
     private static User user(
@@ -117,19 +120,15 @@ class UpdateUserAuthorizationServiceTest {
 
     private static class StubUserPorts implements LoadUserPort, SaveUserPort {
 
-        private final User actor;
         private User target;
 
-        private StubUserPorts(User actor, User target) {
-            this.actor = actor;
+        private StubUserPorts(User target) {
             this.target = target;
         }
 
         @Override
         public Optional<User> findByKeycloakSub(String keycloakSub) {
-            return actor.keycloakSub().equals(keycloakSub)
-                    ? Optional.of(actor)
-                    : Optional.empty();
+            return Optional.empty();
         }
 
         @Override

@@ -75,31 +75,18 @@ public class AdminUserController {
         );
     }
 
-    /*
 
+    /*
      status, role, tenancy를 한 요청에서 함께 변경한다.
 
      현재 관리자 프론트의 승인/비활성 처리에서는 status 전용 API를 사용하므로
-     API를 직접 호출하지 않는다.
+     이 API를 직접 호출하지 않는다.
 
      이 API는 운영자 도구나 내부 관리 기능에서 사용자의 승인 상태, 역할,
      소속 정보를 한 번에 보정해야 할 때 사용한다.
 
-     @AuthenticationPrincipal Jwt:
-     Resource Server 검증을 통과한 Access Token의 payload.
-     sub는 변경 요청자를 User DB에서 찾는 안정적인 식별값으로 사용한다.
+     호출자의 ADMIN 권한 검사는 @RequireRole에서 처리한다.
      */
-/*
- status, role, tenancy를 한 요청에서 함께 변경한다.
-
- 현재 관리자 프론트의 승인/비활성 처리에서는 status 전용 API를 사용하므로
- 이 API를 직접 호출하지 않는다.
-
- 이 API는 운영자 도구나 내부 관리 기능에서 사용자의 승인 상태, 역할,
- 소속 정보를 한 번에 보정해야 할 때 사용한다.
-
- 호출자의 ADMIN 권한 검사는 @RequireRole에서 처리한다.
- */
     @PatchMapping("/{userId}/authorization")
     public UserSnapshotResponse updateAuthorization(
             @PathVariable Long userId,
