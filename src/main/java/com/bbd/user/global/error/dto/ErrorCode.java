@@ -31,9 +31,7 @@ public enum ErrorCode {
     USER_DUPLICATED_EMPLOYEE_NUMBER(HttpStatus.CONFLICT, "U004", "이미 등록된 사번입니다."),
     USER_DUPLICATED_KEYCLOAK_SUB(HttpStatus.CONFLICT, "U005", "이미 등록된 Keycloak 사용자입니다."),
     USER_INVALID_KEYCLOAK_SUB(HttpStatus.BAD_REQUEST, "U006", "keycloakSub는 필수입니다."),
-    USER_DUPLICATED_USERNAME(HttpStatus.CONFLICT, "U007", "이미 등록된 username입니다."),
-    USER_INVALID_EMPLOYEE_NUMBER(HttpStatus.BAD_REQUEST, "U008", "employeeNumber는 필수입니다."),
-    USER_INVALID_USERNAME(HttpStatus.BAD_REQUEST, "U009", "username은 필수입니다.");
+    USER_INVALID_EMPLOYEE_NUMBER(HttpStatus.BAD_REQUEST, "U008", "employeeNumber는 필수입니다.");
 
 
     private final HttpStatus status;

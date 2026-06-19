@@ -66,7 +66,7 @@ public record ScimUserResponse(
                 ),
                 result.userId().toString(),
                 result.keycloakSub(),
-                result.username(),
+                result.employeeNumber(),
                 result.displayName(),
                 new ScimUserRequest.ScimName(result.displayName()),
                 result.position(),

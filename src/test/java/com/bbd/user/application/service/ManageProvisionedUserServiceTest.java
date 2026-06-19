@@ -76,7 +76,6 @@ class ManageProvisionedUserServiceTest {
                         null,
                         null,
                         null,
-                        null,
                         false
                 )
         );
@@ -98,7 +97,6 @@ class ManageProvisionedUserServiceTest {
         ProvisionedUserResult result = service.update(
                 new UpdateProvisionedUserCommand(
                         1L,
-                        null,
                         null,
                         null,
                         null,
@@ -140,7 +138,6 @@ class ManageProvisionedUserServiceTest {
         return new CreateProvisionedUserCommand(
                 keycloakSub,
                 employeeNumber,
-                employeeNumber.toLowerCase(),
                 "사용자 " + employeeNumber,
                 employeeNumber.toLowerCase() + "@example.com",
                 "직원",
@@ -162,7 +159,6 @@ class ManageProvisionedUserServiceTest {
                 id,
                 keycloakSub,
                 employeeNumber,
-                employeeNumber.toLowerCase(),
                 "사용자 " + employeeNumber,
                 employeeNumber.toLowerCase() + "@example.com",
                 "직원",
@@ -180,14 +176,14 @@ class ManageProvisionedUserServiceTest {
         private long nextId = 1L;
 
         private void put(User user) {
-            users.put(user.getId(), user);
-            nextId = Math.max(nextId, user.getId() + 1);
+            users.put(user.id(), user);
+            nextId = Math.max(nextId, user.id() + 1);
         }
 
         @Override
         public Optional<User> findByKeycloakSub(String keycloakSub) {
             return users.values().stream()
-                    .filter(user -> user.getKeycloakSub().equals(keycloakSub))
+                    .filter(user -> user.keycloakSub().equals(keycloakSub))
                     .findFirst();
         }
 
@@ -199,21 +195,14 @@ class ManageProvisionedUserServiceTest {
         @Override
         public Optional<User> findByEmployeeNumber(String employeeNumber) {
             return users.values().stream()
-                    .filter(user -> user.getEmployeeNumber().equals(employeeNumber))
-                    .findFirst();
-        }
-
-        @Override
-        public Optional<User> findByUsername(String username) {
-            return users.values().stream()
-                    .filter(user -> user.getUsername().equals(username))
+                    .filter(user -> user.employeeNumber().equals(employeeNumber))
                     .findFirst();
         }
 
         @Override
         public List<User> findAll(int offset, int count) {
             return users.values().stream()
-                    .sorted(Comparator.comparing(User::getId))
+                    .sorted(Comparator.comparing(User::id))
                     .skip(offset)
                     .limit(count)
                     .toList();
@@ -226,20 +215,19 @@ class ManageProvisionedUserServiceTest {
 
         @Override
         public User save(User user) {
-            Long id = user.getId() == null ? nextId++ : user.getId();
-            long version = user.getId() == null ? 1L : user.getVersion() + 1;
+            Long id = user.id() == null ? nextId++ : user.id();
+            long version = user.id() == null ? 1L : user.version() + 1;
             User saved = new User(
                     id,
-                    user.getKeycloakSub(),
-                    user.getEmployeeNumber(),
-                    user.getUsername(),
-                    user.getDisplayName(),
-                    user.getEmail(),
-                    user.getPosition(),
-                    user.getStatus(),
-                    user.getRole(),
-                    user.getTenancyType(),
-                    user.getTenancyName(),
+                    user.keycloakSub(),
+                    user.employeeNumber(),
+                    user.displayName(),
+                    user.email(),
+                    user.position(),
+                    user.status(),
+                    user.role(),
+                    user.tenancyType(),
+                    user.tenancyName(),
                     version
             );
             users.put(id, saved);

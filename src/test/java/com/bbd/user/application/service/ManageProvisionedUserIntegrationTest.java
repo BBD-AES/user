@@ -47,7 +47,6 @@ class ManageProvisionedUserIntegrationTest {
                 new CreateProvisionedUserCommand(
                         "scim-sub-1",
                         "SCIM-001",
-                        "scim001",
                         "SCIM 사용자",
                         "scim001@example.com",
                         "직원",

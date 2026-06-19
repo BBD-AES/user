@@ -17,6 +17,4 @@ public interface UserJpaRepository
     Optional<UserJpaEntity> findByKeycloakSub(String keycloakSub);
 
     Optional<UserJpaEntity> findByEmployeeNumber(String employeeNumber);
-
-    Optional<UserJpaEntity> findByUsername(String username);
 }

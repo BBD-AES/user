@@ -41,9 +41,6 @@ public class UserJpaEntity {
     @Column(name = "employee_number", nullable = false, unique = true, length = 50)
     private String employeeNumber;
 
-    @Column(name = "username", unique = true, length = 100)
-    private String username;
-
     @Column(name = "display_name", length = 100)
     private String displayName;
 
@@ -96,7 +93,6 @@ public class UserJpaEntity {
                 id,
                 keycloakSub,
                 employeeNumber,
-                username,
                 displayName,
                 email,
                 position,
@@ -115,16 +111,15 @@ public class UserJpaEntity {
         UserJpaEntity entity = new UserJpaEntity();
         Instant now = Instant.now();
 
-        entity.keycloakSub = user.getKeycloakSub();
-        entity.employeeNumber = user.getEmployeeNumber();
-        entity.username = user.getUsername();
-        entity.displayName = user.getDisplayName();
-        entity.email = user.getEmail();
-        entity.position = user.getPosition();
-        entity.status = user.getStatus();
-        entity.role = user.getRole();
-        entity.tenancyType = user.getTenancyType();
-        entity.tenancyName = user.getTenancyName();
+        entity.keycloakSub = user.keycloakSub();
+        entity.employeeNumber = user.employeeNumber();
+        entity.displayName = user.displayName();
+        entity.email = user.email();
+        entity.position = user.position();
+        entity.status = user.status();
+        entity.role = user.role();
+        entity.tenancyType = user.tenancyType();
+        entity.tenancyName = user.tenancyName();
         entity.createdAt = now;
         entity.updatedAt = now;
 
@@ -138,16 +133,15 @@ public class UserJpaEntity {
      특히 version은 @Version이 update 성공 시 자동 증가시킨다.
      */
     public void updateFrom(User user) {
-        this.keycloakSub = user.getKeycloakSub();
-        this.employeeNumber = user.getEmployeeNumber();
-        this.username = user.getUsername();
-        this.displayName = user.getDisplayName();
-        this.email = user.getEmail();
-        this.position = user.getPosition();
-        this.status = user.getStatus();
-        this.role = user.getRole();
-        this.tenancyType = user.getTenancyType();
-        this.tenancyName = user.getTenancyName();
+        this.keycloakSub = user.keycloakSub();
+        this.employeeNumber = user.employeeNumber();
+        this.displayName = user.displayName();
+        this.email = user.email();
+        this.position = user.position();
+        this.status = user.status();
+        this.role = user.role();
+        this.tenancyType = user.tenancyType();
+        this.tenancyName = user.tenancyName();
         this.updatedAt = Instant.now();
     }
 }

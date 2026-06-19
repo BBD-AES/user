@@ -47,14 +47,14 @@ public record UserChangedEvent(
                 UUID.randomUUID(),
                 eventType,
                 Instant.now(),
-                user.getId(),
-                user.getKeycloakSub(),
-                user.getEmployeeNumber(),
-                user.getStatus(),
-                user.getRole(),
-                user.getTenancyType(),
-                user.getTenancyName(),
-                user.getVersion()
+                user.id(),
+                user.keycloakSub(),
+                user.employeeNumber(),
+                user.status(),
+                user.role(),
+                user.tenancyType(),
+                user.tenancyName(),
+                user.version()
         );
     }
 }

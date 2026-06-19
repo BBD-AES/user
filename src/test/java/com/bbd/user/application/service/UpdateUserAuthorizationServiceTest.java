@@ -51,8 +51,8 @@ class UpdateUserAuthorizationServiceTest {
 
         UserSnapshotResult result = service.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
-                        actor.getKeycloakSub(),
-                        target.getId(),
+                        actor.keycloakSub(),
+                        target.id(),
                         UserStatus.ACTIVE,
                         UserRole.BRANCH_MANAGER,
                         TenancyType.BRANCH,
@@ -81,8 +81,8 @@ class UpdateUserAuthorizationServiceTest {
 
         UserSnapshotResult result = service.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
-                        actor.getKeycloakSub(),
-                        target.getId(),
+                        actor.keycloakSub(),
+                        target.id(),
                         UserStatus.ACTIVE,
                         UserRole.HQ_STAFF,
                         TenancyType.HQ,
@@ -109,8 +109,8 @@ class UpdateUserAuthorizationServiceTest {
                 ApiException.class,
                 () -> service.updateAuthorization(
                         new UpdateUserAuthorizationCommand(
-                                actor.getKeycloakSub(),
-                                target.getId(),
+                                actor.keycloakSub(),
+                                target.id(),
                                 UserStatus.ACTIVE,
                                 UserRole.BRANCH_STAFF,
                                 TenancyType.BRANCH,
@@ -133,7 +133,6 @@ class UpdateUserAuthorizationServiceTest {
                 id,
                 keycloakSub,
                 "EMP-" + id,
-                "user-" + id,
                 "사용자 " + id,
                 "user" + id + "@example.com",
                 "직원",
@@ -161,14 +160,14 @@ class UpdateUserAuthorizationServiceTest {
 
         @Override
         public Optional<User> findByKeycloakSub(String keycloakSub) {
-            return actor.getKeycloakSub().equals(keycloakSub)
+            return actor.keycloakSub().equals(keycloakSub)
                     ? Optional.of(actor)
                     : Optional.empty();
         }
 
         @Override
         public Optional<User> findById(Long userId) {
-            return target.getId().equals(userId)
+            return target.id().equals(userId)
                     ? Optional.of(target)
                     : Optional.empty();
         }
@@ -177,18 +176,17 @@ class UpdateUserAuthorizationServiceTest {
         public User save(User user) {
             // 실제 JPA @Version이 update 성공 시 1 증가시키는 동작을 단위 테스트에서 흉내 낸다.
             this.target = new User(
-                    user.getId(),
-                    user.getKeycloakSub(),
-                    user.getEmployeeNumber(),
-                    user.getUsername(),
-                    user.getDisplayName(),
-                    user.getEmail(),
-                    user.getPosition(),
-                    user.getStatus(),
-                    user.getRole(),
-                    user.getTenancyType(),
-                    user.getTenancyName(),
-                    user.getVersion() + 1
+                    user.id(),
+                    user.keycloakSub(),
+                    user.employeeNumber(),
+                    user.displayName(),
+                    user.email(),
+                    user.position(),
+                    user.status(),
+                    user.role(),
+                    user.tenancyType(),
+                    user.tenancyName(),
+                    user.version() + 1
             );
             return target;
         }

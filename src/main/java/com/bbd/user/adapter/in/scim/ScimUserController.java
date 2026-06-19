@@ -66,7 +66,7 @@ public class ScimUserController {
      - ETag: 현재 User version
      - body: 생성된 SCIM User
 
-     같은 externalId, 사번, username이 이미 존재하면 application의 ApiException이 발생하고
+     같은 externalId나 사번이 이미 존재하면 application의 ApiException이 발생하고
      SCIM Handler가 409 uniqueness 응답으로 변환한다.
      */
     @PostMapping(consumes = {ScimConstants.MEDIA_TYPE, "application/json"})

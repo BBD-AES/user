@@ -42,7 +42,6 @@ class SearchUsersIntegrationTest {
         insertUser(
                 "sub-hq-manager",
                 "EMP-001",
-                "hq-manager",
                 "본사 관리자",
                 UserRole.HQ_MANAGER,
                 TenancyType.HQ
@@ -50,7 +49,6 @@ class SearchUsersIntegrationTest {
         insertUser(
                 "sub-hq-staff",
                 "EMP-002",
-                "hq-staff",
                 "본사 직원",
                 UserRole.HQ_STAFF,
                 TenancyType.HQ
@@ -58,7 +56,6 @@ class SearchUsersIntegrationTest {
         insertUser(
                 "sub-branch-staff",
                 "BR-001",
-                "branch-staff",
                 "강남 지점 직원",
                 UserRole.BRANCH_STAFF,
                 TenancyType.BRANCH
@@ -109,7 +106,6 @@ class SearchUsersIntegrationTest {
     private void insertUser(
             String keycloakSub,
             String employeeNumber,
-            String username,
             String displayName,
             UserRole role,
             TenancyType tenancyType
@@ -119,7 +115,6 @@ class SearchUsersIntegrationTest {
                 INSERT INTO users (
                     keycloak_sub,
                     employee_number,
-                    username,
                     display_name,
                     email,
                     position,
@@ -128,13 +123,12 @@ class SearchUsersIntegrationTest {
                     tenancy_type,
                     tenancy_name,
                     version
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
                 """,
                 keycloakSub,
                 employeeNumber,
-                username,
                 displayName,
-                username + "@example.com",
+                employeeNumber + "@example.com",
                 "직원",
                 UserStatus.ACTIVE.name(),
                 role.name(),
