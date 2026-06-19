@@ -1,19 +1,21 @@
 package com.bbd.user.adapter.in.web;
 
+import com.bbd.securitycore.adapter.in.annotation.RequireRole;
 import com.bbd.user.adapter.in.web.request.UpdateUserAuthorizationRequest;
+import com.bbd.user.adapter.in.web.request.UpdateUserStatusRequest;
 import com.bbd.user.adapter.in.web.response.UserSearchResponse;
 import com.bbd.user.adapter.in.web.response.UserSnapshotResponse;
 import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
+import com.bbd.user.application.model.UpdateUserStatusCommand;
 import com.bbd.user.application.model.UserSearchCondition;
 import com.bbd.user.application.model.UserSnapshotResult;
 import com.bbd.user.application.port.in.SearchUsersUseCase;
 import com.bbd.user.application.port.in.UpdateUserAuthorizationUseCase;
+import com.bbd.user.application.port.in.UpdateUserStatusUseCase;
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.UserRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 /*
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
  midPoint는 /scim/** 전용 mTLS API를 사용하고,
  두 adapter는 각자의 application use case에서 같은 Outbox와 Snapshot 복구 흐름을 사용한다.
  */
+@RequireRole(com.bbd.securitycore.domain.UserRole.ADMIN)
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -36,7 +39,7 @@ public class AdminUserController {
 
     private final SearchUsersUseCase searchUsersUseCase;
     private final UpdateUserAuthorizationUseCase updateUserAuthorizationUseCase;
-
+    private final UpdateUserStatusUseCase updateUserStatusUseCase;
 
     /*
   RDS users 테이블 기준으로 사용자 목록을 조회한다.
@@ -73,26 +76,58 @@ public class AdminUserController {
     }
 
     /*
+
      status, role, tenancy를 한 요청에서 함께 변경한다.
+
+     현재 관리자 프론트의 승인/비활성 처리에서는 status 전용 API를 사용하므로
+     API를 직접 호출하지 않는다.
+
+     이 API는 운영자 도구나 내부 관리 기능에서 사용자의 승인 상태, 역할,
+     소속 정보를 한 번에 보정해야 할 때 사용한다.
 
      @AuthenticationPrincipal Jwt:
      Resource Server 검증을 통과한 Access Token의 payload.
      sub는 변경 요청자를 User DB에서 찾는 안정적인 식별값으로 사용한다.
      */
+/*
+ status, role, tenancy를 한 요청에서 함께 변경한다.
+
+ 현재 관리자 프론트의 승인/비활성 처리에서는 status 전용 API를 사용하므로
+ 이 API를 직접 호출하지 않는다.
+
+ 이 API는 운영자 도구나 내부 관리 기능에서 사용자의 승인 상태, 역할,
+ 소속 정보를 한 번에 보정해야 할 때 사용한다.
+
+ 호출자의 ADMIN 권한 검사는 @RequireRole에서 처리한다.
+ */
     @PatchMapping("/{userId}/authorization")
     public UserSnapshotResponse updateAuthorization(
-            @AuthenticationPrincipal Jwt jwt,
             @PathVariable Long userId,
             @Valid @RequestBody UpdateUserAuthorizationRequest request
     ) {
         UserSnapshotResult result = updateUserAuthorizationUseCase.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
-                        jwt.getSubject(),
                         userId,
                         request.status(),
                         request.role(),
                         request.tenancyType(),
                         request.tenancyName()
+                )
+        );
+
+        return UserSnapshotResponse.from(result);
+    }
+
+
+    @PatchMapping("/{userId}/status")
+    public UserSnapshotResponse updateStatus(
+            @PathVariable Long userId,
+            @Valid @RequestBody UpdateUserStatusRequest request
+    ) {
+        UserSnapshotResult result = updateUserStatusUseCase.updateStatus(
+                new UpdateUserStatusCommand(
+                        userId,
+                        request.status()
                 )
         );
 

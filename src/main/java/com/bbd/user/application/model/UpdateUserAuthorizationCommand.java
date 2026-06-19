@@ -19,7 +19,6 @@ import com.bbd.user.domain.UserStatus;
  관리자 API와 같은 Outbox 및 Snapshot 복구 흐름을 사용한다.
  */
 public record UpdateUserAuthorizationCommand(
-        String actorKeycloakSub,
         Long targetUserId,
         UserStatus status,
         UserRole role,

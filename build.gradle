@@ -15,7 +15,16 @@ java {
 
 repositories {
 	mavenCentral()
+
+	maven {
+		url = uri("https://maven.pkg.github.com/BBD-AES/bbd-security-core")
+		credentials {
+			username = findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+			password = findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+		}
+	}
 }
+
 
 dependencies {
 	// users 테이블과 user_outbox 테이블을 JPA로 조회/수정한다.
@@ -55,6 +64,9 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// 공통 보안 모듈 프레임워크
+	implementation 'com.bbd:bbd-security-core:0.0.6'
 
 	//Swagger UI :  http://localhost:8080/swagger-ui/index.html#/
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'

@@ -52,8 +52,8 @@ class UpdateUserAuthorizationIntegrationTest {
 
     @Test
     void userUpdateAndOutboxAreStoredTogether() {
-        insertUser("manager-sub", "EMP-1", UserStatus.ACTIVE, UserRole.HQ_MANAGER, TenancyType.HQ);
-        insertUser("target-sub", "EMP-2", UserStatus.PENDING, UserRole.BRANCH_STAFF, TenancyType.BRANCH);
+        insertUser("EMP-1", UserStatus.ACTIVE, UserRole.HQ_MANAGER, TenancyType.HQ);
+        insertUser( "EMP-2", UserStatus.PENDING, UserRole.BRANCH_STAFF, TenancyType.BRANCH);
 
         Long targetId = jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE keycloak_sub = ?",
@@ -63,7 +63,6 @@ class UpdateUserAuthorizationIntegrationTest {
 
         UserSnapshotResult result = updateUserAuthorizationUseCase.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
-                        "manager-sub",
                         targetId,
                         UserStatus.ACTIVE,
                         UserRole.BRANCH_MANAGER,
@@ -85,7 +84,6 @@ class UpdateUserAuthorizationIntegrationTest {
     }
 
     private void insertUser(
-            String keycloakSub,
             String employeeNumber,
             UserStatus status,
             UserRole role,
@@ -94,7 +92,6 @@ class UpdateUserAuthorizationIntegrationTest {
         jdbcTemplate.update(
                 """
                 INSERT INTO users (
-                    keycloak_sub,
                     employee_number,
                     display_name,
                     email,
@@ -106,7 +103,6 @@ class UpdateUserAuthorizationIntegrationTest {
                     version
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
                 """,
-                keycloakSub,
                 employeeNumber,
                 employeeNumber,
                 employeeNumber.toLowerCase() + "@example.com",
