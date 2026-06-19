@@ -49,7 +49,6 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
     @Override
     @Transactional
     public UserSnapshotResult updateAuthorization(UpdateUserAuthorizationCommand command) {
-        // JWT sub를 신뢰 가능한 사용자 원본인 User DB와 매핑한다.
         User target = loadUserPort.findById(command.targetUserId())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
