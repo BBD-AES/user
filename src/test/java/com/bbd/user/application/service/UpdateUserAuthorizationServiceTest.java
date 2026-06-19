@@ -10,15 +10,12 @@ import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.User;
 import com.bbd.user.domain.UserRole;
 import com.bbd.user.domain.UserStatus;
-import com.bbd.user.global.error.ApiException;
-import com.bbd.user.global.error.dto.ErrorCode;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /*
  UpdateUserAuthorizationService의 순수 application 규칙을 검증하는 단위 테스트.
@@ -51,7 +48,6 @@ class UpdateUserAuthorizationServiceTest {
 
         UserSnapshotResult result = service.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
-                        actor.keycloakSub(),
                         target.id(),
                         UserStatus.ACTIVE,
                         UserRole.BRANCH_MANAGER,
@@ -81,7 +77,6 @@ class UpdateUserAuthorizationServiceTest {
 
         UserSnapshotResult result = service.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
-                        actor.keycloakSub(),
                         target.id(),
                         UserStatus.ACTIVE,
                         UserRole.HQ_STAFF,
@@ -92,34 +87,6 @@ class UpdateUserAuthorizationServiceTest {
 
         assertEquals(UserStatus.ACTIVE, result.status());
         assertEquals(UserRole.HQ_STAFF, result.role());
-    }
-
-    @Test
-    void nonManagerCannotChangeAuthorization() {
-        User actor = user(1L, "staff-sub", UserStatus.ACTIVE, UserRole.HQ_STAFF, 1L);
-        User target = user(2L, "target-sub", UserStatus.PENDING, UserRole.BRANCH_STAFF, 1L);
-        StubUserPorts userPorts = new StubUserPorts(actor, target);
-
-        UpdateUserAuthorizationService service =
-                new UpdateUserAuthorizationService(userPorts, userPorts, event -> {
-                }, event -> {
-                });
-
-        ApiException exception = assertThrows(
-                ApiException.class,
-                () -> service.updateAuthorization(
-                        new UpdateUserAuthorizationCommand(
-                                actor.keycloakSub(),
-                                target.id(),
-                                UserStatus.ACTIVE,
-                                UserRole.BRANCH_STAFF,
-                                TenancyType.BRANCH,
-                                "강남 지점"
-                        )
-                )
-        );
-
-        assertEquals(ErrorCode.AUTH_FORBIDDEN, exception.getErrorCode());
     }
 
     private static User user(
