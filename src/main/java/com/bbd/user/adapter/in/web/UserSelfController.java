@@ -1,0 +1,29 @@
+package com.bbd.user.adapter.in.web;
+
+import com.bbd.user.adapter.in.web.response.UserSnapshotResponse;
+import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.port.in.GetUserSnapshotUseCase;
+import com.bbd.user.global.error.ApiException;
+import com.bbd.user.global.error.dto.ErrorCode;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+public class UserSelfController {
+
+    private final GetUserSnapshotUseCase getUserSnapshotUseCase;
+
+    @GetMapping("/api/v1/users/me")
+    public UserSnapshotResponse getMe(@AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) {
+            throw new ApiException(ErrorCode.AUTH_UNAUTHENTICATED);
+        }
+
+        UserSnapshotResult result = getUserSnapshotUseCase.getSnapshotByKeycloakSub(jwt.getSubject());
+        return UserSnapshotResponse.from(result);
+    }
+}
