@@ -28,3 +28,24 @@ public record UserSearchResponse(
         );
     }
 }
+
+//{
+//  "users": [
+//    {
+//      "userId": "Long",
+//      "keycloakSub": "String",
+//      "employeeNumber": "String",
+//      "displayName": "String",
+//      "email": "String",
+//      "position": "String",
+//      "status": "ACTIVE | INACTIVE | PENDING | TERMINATED",
+//      "role": "ADMIN | HQ_MANAGER | HQ_STAFF | BRANCH_MANAGER | BRANCH_STAFF",
+//      "tenancyType": "HQ | BRANCH",
+//      "tenancyName": "String",
+//      "version": "Long"
+//    }
+//  ],
+//  "totalElements": "long",
+//  "page": "int",
+//  "size": "int"
+//}

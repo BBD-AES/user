@@ -42,15 +42,10 @@ public class AdminUserController {
     private final UpdateUserStatusUseCase updateUserStatusUseCase;
 
     /*
-  RDS users 테이블 기준으로 사용자 목록을 조회한다.
+    RDS users 테이블 기준으로 사용자 목록을 조회한다.
 
-  지원 조건:
-  - 조건 없음: 전체 목록
-  - employeeNumber: 사번 부분 일치
-  - displayName 또는 employeeNumber
-  - role: 역할 정확히 일치
-  - tenancyType: HQ/BRANCH 정확히 일치
-  - role + tenancyType: 지점/본사 안에서 역할별 조회
+    조건 없이 호출하면 전체 사용자를 페이지 단위로 조회한다.
+    사번, 이름, 역할, 소속 유형 기준으로 필터링할 수 있다.
   */
     @GetMapping
     public UserSearchResponse searchUsers(
@@ -76,41 +71,13 @@ public class AdminUserController {
     }
 
 
-    /*
-     status, role, tenancy를 한 요청에서 함께 변경한다.
-
-     현재 관리자 프론트의 승인/비활성 처리에서는 status 전용 API를 사용하므로
-     이 API를 직접 호출하지 않는다.
-
-     이 API는 운영자 도구나 내부 관리 기능에서 사용자의 승인 상태, 역할,
-     소속 정보를 한 번에 보정해야 할 때 사용한다.
-
-     호출자의 ADMIN 권한 검사는 @RequireRole에서 처리한다.
-     */
-    @PatchMapping("/{userId}/authorization")
-    public UserSnapshotResponse updateAuthorization(
-            @PathVariable Long userId,
-            @Valid @RequestBody UpdateUserAuthorizationRequest request
-    ) {
-        UserResult result = updateUserAuthorizationUseCase.updateAuthorization(
-                new UpdateUserAuthorizationCommand(
-                        userId,
-                        request.status(),
-                        request.role(),
-                        request.tenancyType(),
-                        request.tenancyName()
-                )
-        );
-
-        return UserSnapshotResponse.from(result);
-    }
-
-
+    // status 변경 api
     @PatchMapping("/{userId}/status")
     public UserSnapshotResponse updateStatus(
             @PathVariable Long userId,
             @Valid @RequestBody UpdateUserStatusRequest request
     ) {
+        // 사용자 변경 모델
         UserResult result = updateUserStatusUseCase.updateStatus(
                 new UpdateUserStatusCommand(
                         userId,
@@ -118,6 +85,7 @@ public class AdminUserController {
                 )
         );
 
+        // 사용자 변경 모델을
         return UserSnapshotResponse.from(result);
     }
 }
