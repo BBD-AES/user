@@ -7,14 +7,19 @@ import com.bbd.user.application.port.out.SaveUserPort;
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.User;
 import com.bbd.user.domain.UserRole;
+import com.bbd.user.global.error.ApiException;
+import com.bbd.user.global.error.dto.ErrorCode;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -94,7 +99,7 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
     @Override
     public User save(User user) {
         if (user.id() == null) {
-            return userJpaRepository.saveAndFlush(UserJpaEntity.from(user)).toDomain();
+            return saveAndFlush(UserJpaEntity.from(user)).toDomain();
         }
 
         UserJpaEntity entity = userJpaRepository.findById(user.id())
@@ -106,7 +111,96 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
          saveAndFlush를 사용해서 현재 트랜잭션 안에서 DB UPDATE와 @Version 증가를 실행한다.
          반환된 User의 version을 같은 트랜잭션에 저장되는 UserChangedEvent에 사용한다.
          */
-        return userJpaRepository.saveAndFlush(entity).toDomain();
+        return saveAndFlush(entity).toDomain();
+    }
+
+    private UserJpaEntity saveAndFlush(UserJpaEntity entity) {
+        try {
+            return userJpaRepository.saveAndFlush(entity);
+        } catch (DataIntegrityViolationException exception) {
+            ErrorCode errorCode = duplicatedUserErrorCode(exception);
+            if (errorCode != null) {
+                throw new ApiException(errorCode);
+            }
+            throw exception;
+        }
+    }
+
+    private ErrorCode duplicatedUserErrorCode(DataIntegrityViolationException exception) {
+        String details = duplicateViolationDetails(exception);
+
+        if (!isUniqueViolation(exception, details)) {
+            return null;
+        }
+
+        if (matchesKeycloakSubUniqueKey(details)) {
+            return ErrorCode.USER_DUPLICATED_KEYCLOAK_SUB;
+        }
+        if (matchesEmployeeNumberUniqueKey(details)) {
+            return ErrorCode.USER_DUPLICATED_EMPLOYEE_NUMBER;
+        }
+
+        return null;
+    }
+
+    private boolean matchesKeycloakSubUniqueKey(String details) {
+        return details.contains("users_keycloak_sub_key")
+                || details.contains("keycloak_sub_key")
+                || details.contains("uk_users_keycloak_sub")
+                || details.contains("key (keycloak_sub")
+                || details.contains("users(keycloak_sub")
+                || details.contains("users (keycloak_sub")
+                || details.contains("(keycloak_sub)");
+    }
+
+    private boolean matchesEmployeeNumberUniqueKey(String details) {
+        return details.contains("users_employee_number_key")
+                || details.contains("employee_number_key")
+                || details.contains("uk_users_employee_number")
+                || details.contains("key (employee_number")
+                || details.contains("users(employee_number")
+                || details.contains("users (employee_number")
+                || details.contains("(employee_number)");
+    }
+
+    private String duplicateViolationDetails(DataIntegrityViolationException exception) {
+        StringBuilder details = new StringBuilder();
+        Throwable current = exception;
+
+        while (current != null) {
+            if (current.getMessage() != null) {
+                details.append(' ').append(current.getMessage());
+            }
+            if (current instanceof ConstraintViolationException constraintViolation
+                    && constraintViolation.getConstraintName() != null) {
+                details.append(' ').append(constraintViolation.getConstraintName());
+            }
+            if (current instanceof SQLException sqlException && sqlException.getSQLState() != null) {
+                details.append(' ').append(sqlException.getSQLState());
+            }
+            current = current.getCause();
+        }
+
+        return details.toString().toLowerCase(Locale.ROOT);
+    }
+
+    private boolean isUniqueViolation(Throwable exception, String details) {
+        if (details.contains("23505")
+                || details.contains("unique")
+                || details.contains("duplicate")) {
+            return true;
+        }
+
+        Throwable current = exception;
+        while (current != null) {
+            if (current instanceof SQLException sqlException
+                    && "23505".equals(sqlException.getSQLState())) {
+                return true;
+            }
+            current = current.getCause();
+        }
+
+        return false;
     }
 
     private Specification<UserJpaEntity> searchSpec(UserSearchCondition condition) {
