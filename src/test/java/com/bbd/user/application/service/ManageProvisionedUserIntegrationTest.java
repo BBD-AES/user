@@ -2,6 +2,9 @@ package com.bbd.user.application.service;
 
 import com.bbd.user.adapter.out.outbox.UserOutboxJpaRepository;
 import com.bbd.user.application.model.CreateProvisionedUserCommand;
+import com.bbd.user.application.model.ProvisionedUserSearchField;
+import com.bbd.user.application.model.ProvisionedUserSearchResult;
+import com.bbd.user.application.model.SearchProvisionedUsersCommand;
 import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.ManageProvisionedUserUseCase;
 import com.bbd.user.domain.TenancyType;

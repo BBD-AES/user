@@ -114,8 +114,9 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
         int count = Math.min(Math.max(command.count(), 1), MAX_PAGE_SIZE);
 
         if (command.field() != null) {
-            List<UserResult> users = findExact(command.field(), command.value())
-                    .map(UserResult::from)
+            Optional<UserResult> matched = findExact(command.field(), command.value())
+                    .map(UserResult::from);
+            List<UserResult> users = matched
                     .stream()
                     .skip(startIndex - 1L)
                     .limit(count)
