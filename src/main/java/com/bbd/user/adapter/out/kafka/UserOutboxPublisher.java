@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  1. PENDING Outbox를 batch 단위로 lock해서 조회
  2. keycloakSub를 message key로 Kafka 발행
  3. broker 응답 성공 시 PUBLISHED로 변경
- 4. 실패 시 PENDING 유지, attempts와 lastError 기록
+ 4. 실패 시 attempts와 lastError 기록, 재시도 상한 도달 시 FAILED로 격리
 
  Kafka send 성공 후 DB commit이 실패하면 같은 이벤트가 다시 발행될 수 있다.
  따라서 전체 전달 보장은 exactly-once가 아니라 at-least-once다.
@@ -76,9 +76,9 @@ public class UserOutboxPublisher {
         } catch (InterruptedException e) {
             // 종료 신호를 잃지 않도록 interrupt 상태를 복구한다.
             Thread.currentThread().interrupt();
-            event.markFailed(e);
+            event.markFailed(e, properties.getOutboxMaxAttempts());
         } catch (Exception e) {
-            event.markFailed(e);
+            event.markFailed(e, properties.getOutboxMaxAttempts());
         }
     }
 }

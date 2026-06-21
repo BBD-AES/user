@@ -90,6 +90,7 @@ bbd:
       # security-core의 bbd.security.user-snapshot-cache-key-prefix와 같은 값 사용.
       cache-key-prefix: ${USER_SNAPSHOT_CACHE_KEY_PREFIX:user:snapshot:}
       outbox-batch-size: ${USER_OUTBOX_BATCH_SIZE:100}
+      outbox-max-attempts: ${USER_OUTBOX_MAX_ATTEMPTS:30}
       publish-delay-ms: ${USER_OUTBOX_PUBLISH_DELAY_MS:1000}
       send-timeout-ms: ${USER_EVENT_SEND_TIMEOUT_MS:5000}
       consumer-retry-delay-ms: ${USER_EVENT_CONSUMER_RETRY_DELAY_MS:1000}

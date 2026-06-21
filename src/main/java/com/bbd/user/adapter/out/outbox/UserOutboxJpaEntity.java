@@ -93,14 +93,18 @@ public class UserOutboxJpaEntity {
     }
 
     /*
-     발행 실패 시 PENDING 상태는 유지하고 재시도 횟수와 마지막 오류만 기록한다.
+     발행 실패 시 재시도 횟수와 마지막 오류를 기록한다.
+     재시도 상한에 도달하면 FAILED로 격리해 이후 PENDING polling 대상에서 제외한다.
      오류 메시지는 DB column 길이에 맞춰 최대 1000자로 자른다.
      */
-    public void markFailed(Throwable error) {
+    public void markFailed(Throwable error, int maxAttempts) {
         this.attempts++;
         String message = error.getMessage();
         this.lastError = message == null
                 ? error.getClass().getSimpleName()
                 : message.substring(0, Math.min(message.length(), 1000));
+        if (this.attempts >= Math.max(1, maxAttempts)) {
+            this.status = UserOutboxStatus.FAILED;
+        }
     }
 }

@@ -42,6 +42,9 @@ public class UserEventProperties {
     // Outbox Publisher가 한 번의 polling에서 가져올 최대 이벤트 수.
     private int outboxBatchSize = 100;
 
+    // Outbox 이벤트가 FAILED로 격리되기 전까지 Kafka 발행을 시도할 최대 횟수.
+    private int outboxMaxAttempts = 30;
+
     // Outbox polling이 끝난 뒤 다음 polling까지 기다리는 시간.
     private long publishDelayMs = 1000;
 

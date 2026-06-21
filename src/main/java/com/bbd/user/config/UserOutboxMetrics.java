@@ -28,5 +28,13 @@ public class UserOutboxMetrics {
                 )
                 .description("Kafka 발행 전 PENDING User Outbox 개수")
                 .register(meterRegistry);
+
+        Gauge.builder(
+                        "bbd.user.outbox.failed",
+                        userOutboxJpaRepository,
+                        repository -> repository.countByStatus(UserOutboxStatus.FAILED)
+                )
+                .description("Kafka 발행 재시도 상한에 도달한 FAILED User Outbox 개수")
+                .register(meterRegistry);
     }
 }
