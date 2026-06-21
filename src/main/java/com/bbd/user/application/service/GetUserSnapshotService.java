@@ -1,6 +1,6 @@
 package com.bbd.user.application.service;
 
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.GetUserSnapshotUseCase;
 import com.bbd.user.application.port.out.LoadUserPort;
 import com.bbd.user.domain.User;
@@ -27,7 +27,7 @@ public class GetUserSnapshotService implements GetUserSnapshotUseCase {
     private final LoadUserPort loadUserPort;
 
     @Override
-    public UserSnapshotResult getSnapshotByKeycloakSub(String keycloakSub) {
+    public UserResult getSnapshotByKeycloakSub(String keycloakSub) {
         if (keycloakSub == null || keycloakSub.isBlank()) {
             throw new ApiException(ErrorCode.USER_INVALID_KEYCLOAK_SUB);
         }
@@ -35,6 +35,6 @@ public class GetUserSnapshotService implements GetUserSnapshotUseCase {
         User user = loadUserPort.findByKeycloakSub(keycloakSub)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
-        return UserSnapshotResult.from(user);
+        return UserResult.from(user);
     }
 }

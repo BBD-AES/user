@@ -2,7 +2,7 @@ package com.bbd.user.application.service;
 
 import com.bbd.user.adapter.out.outbox.UserOutboxJpaRepository;
 import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.UpdateUserAuthorizationUseCase;
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.UserRole;
@@ -61,7 +61,7 @@ class UpdateUserAuthorizationIntegrationTest {
                 "target-sub"
         );
 
-        UserSnapshotResult result = updateUserAuthorizationUseCase.updateAuthorization(
+        UserResult result = updateUserAuthorizationUseCase.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
                         targetId,
                         UserStatus.ACTIVE,

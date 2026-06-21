@@ -1,7 +1,7 @@
 package com.bbd.user.application.port.in;
 
 import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 
 /*
  사용자 상태, 역할, 소속을 변경하는 inbound port.
@@ -11,5 +11,5 @@ import com.bbd.user.application.model.UserSnapshotResult;
  */
 public interface UpdateUserAuthorizationUseCase {
 
-    UserSnapshotResult updateAuthorization(UpdateUserAuthorizationCommand command);
+    UserResult updateAuthorization(UpdateUserAuthorizationCommand command);
 }

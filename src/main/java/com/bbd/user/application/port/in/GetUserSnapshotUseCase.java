@@ -1,6 +1,6 @@
 package com.bbd.user.application.port.in;
 
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 
 /*
  UserSnapshot 조회 유스케이스.
@@ -10,5 +10,5 @@ import com.bbd.user.application.model.UserSnapshotResult;
  */
 public interface GetUserSnapshotUseCase {
 
-    UserSnapshotResult getSnapshotByKeycloakSub(String keycloakSub);
+    UserResult getSnapshotByKeycloakSub(String keycloakSub);
 }

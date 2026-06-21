@@ -9,7 +9,7 @@ import java.util.List;
  동일한 사용자 표현을 볼 수 있게 한다.
  */
 public record UserSearchResult(
-        List<UserSnapshotResult> users,
+        List<UserResult> users,
         long totalElements,
         int page,
         int size
@@ -18,7 +18,7 @@ public record UserSearchResult(
     public static UserSearchResult from(UserSearchPage page) {
         return new UserSearchResult(
                 page.users().stream()
-                        .map(UserSnapshotResult::from)
+                        .map(UserResult::from)
                         .toList(),
                 page.totalElements(),
                 page.page(),

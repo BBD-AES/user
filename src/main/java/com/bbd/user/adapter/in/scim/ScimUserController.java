@@ -1,8 +1,8 @@
 package com.bbd.user.adapter.in.scim;
 
-import com.bbd.user.application.model.ProvisionedUserResult;
 import com.bbd.user.application.model.ProvisionedUserSearchResult;
 import com.bbd.user.application.model.SearchProvisionedUsersCommand;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.ManageProvisionedUserUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -71,7 +71,7 @@ public class ScimUserController {
      */
     @PostMapping(consumes = {ScimConstants.MEDIA_TYPE, "application/json"})
     public ResponseEntity<ScimUserResponse> create(@RequestBody ScimUserRequest request) {
-        ProvisionedUserResult created =
+        UserResult created =
                 manageProvisionedUserUseCase.create(request.toCreateCommand());
         ScimUserResponse response = response(created);
 
@@ -144,7 +144,7 @@ public class ScimUserController {
             @PathVariable Long userId,
             @RequestBody ScimUserRequest request
     ) {
-        ProvisionedUserResult current = manageProvisionedUserUseCase.getById(userId);
+        UserResult current = manageProvisionedUserUseCase.getById(userId);
         if (request.externalId() != null
                 && !request.externalId().equals(current.keycloakSub())) {
             throw new ScimException(
@@ -205,7 +205,7 @@ public class ScimUserController {
      SCIM resource의 절대 location을 만들고 application 결과를 응답 DTO로 변환한다.
      현재 요청의 scheme, host, context path를 사용하므로 로컬과 배포 환경에서 같은 코드를 사용한다.
      */
-    private ScimUserResponse response(ProvisionedUserResult result) {
+    private ScimUserResponse response(UserResult result) {
         String location = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
                 .path("/scim/v2/Users/{id}")

@@ -1,7 +1,7 @@
 package com.bbd.user.adapter.in.web;
 
 import com.bbd.user.adapter.in.web.response.UserSnapshotResponse;
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.GetUserSnapshotUseCase;
 import com.bbd.user.global.error.ApiException;
 import com.bbd.user.global.error.dto.ErrorCode;
@@ -44,8 +44,8 @@ public class InternalUserSnapshotController {
             throw new ApiException(ErrorCode.AUTH_FORBIDDEN);
         }
 
-        UserSnapshotResult result = getUserSnapshotUseCase.getSnapshotByKeycloakSub(keycloakSub);
-        log.info("❤️❤️❤️❤️❤️❤️❤️❤️❤️ {}를 유저 스냅샷을 통해 조회하였습니다.", result.displayName());
+        UserResult result = getUserSnapshotUseCase.getSnapshotByKeycloakSub(keycloakSub);
+        log.info("{}를 유저 스냅샷을 통해 조회하였습니다.", result.displayName());
         return UserSnapshotResponse.from(result);
     }
 }

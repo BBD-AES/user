@@ -1,7 +1,7 @@
 package com.bbd.user.adapter.in.web;
 
 import com.bbd.user.adapter.in.web.response.UserSnapshotResponse;
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.GetUserSnapshotUseCase;
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.UserRole;
@@ -23,7 +23,7 @@ class UserSelfControllerTest {
     void getsCurrentUserSnapshotByJwtSubject() {
         GetUserSnapshotUseCase getUserSnapshotUseCase = mock(GetUserSnapshotUseCase.class);
         UserSelfController controller = new UserSelfController(getUserSnapshotUseCase);
-        UserSnapshotResult result = snapshot();
+        UserResult result = snapshot();
 
         when(getUserSnapshotUseCase.getSnapshotByKeycloakSub("keycloak-sub"))
                 .thenReturn(result);
@@ -61,8 +61,8 @@ class UserSelfControllerTest {
                 .build();
     }
 
-    private UserSnapshotResult snapshot() {
-        return new UserSnapshotResult(
+    private UserResult snapshot() {
+        return new UserResult(
                 12L,
                 "keycloak-sub",
                 "BR002",
