@@ -66,6 +66,7 @@ public class UpdateUserStatusService implements UpdateUserStatusUseCase {
          */
         UserChangedEvent event = UserChangedEvent.from(saved, eventType);
         recordUserChangedEventPort.record(event);
+        // Spring 애플리케이션 내부 이벤트를 발행
         applicationEventPublisher.publishEvent(event);
 
         /*

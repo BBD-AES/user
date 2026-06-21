@@ -85,7 +85,6 @@ public class AdminUserController {
                 )
         );
 
-        // 사용자 변경 모델을
         return UserSnapshotResponse.from(result);
     }
 }
