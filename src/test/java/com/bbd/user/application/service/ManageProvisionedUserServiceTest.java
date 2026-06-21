@@ -3,8 +3,8 @@ package com.bbd.user.application.service;
 import com.bbd.user.application.event.UserChangeType;
 import com.bbd.user.application.event.UserChangedEvent;
 import com.bbd.user.application.model.CreateProvisionedUserCommand;
-import com.bbd.user.application.model.ProvisionedUserResult;
 import com.bbd.user.application.model.UpdateProvisionedUserCommand;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.out.LoadUserPort;
 import com.bbd.user.application.port.out.RecordUserChangedEventPort;
 import com.bbd.user.application.port.out.SaveUserPort;
@@ -35,7 +35,7 @@ class ManageProvisionedUserServiceTest {
         ManageProvisionedUserService service =
                 new ManageProvisionedUserService(userPorts, userPorts, eventPort, publisher);
 
-        ProvisionedUserResult result = service.create(createCommand("sub-1", "EMP-1", true));
+        UserResult result = service.create(createCommand("sub-1", "EMP-1", true));
 
         assertEquals(UserStatus.PENDING, result.status());
         assertEquals(1L, result.userId());
@@ -51,7 +51,7 @@ class ManageProvisionedUserServiceTest {
                 }, event -> {
                 });
 
-        ProvisionedUserResult result = service.create(createCommand("sub-1", "EMP-1", false));
+        UserResult result = service.create(createCommand("sub-1", "EMP-1", false));
 
         assertEquals(UserStatus.INACTIVE, result.status());
     }
@@ -66,7 +66,7 @@ class ManageProvisionedUserServiceTest {
                 new ManageProvisionedUserService(userPorts, userPorts, eventPort, event -> {
                 });
 
-        ProvisionedUserResult result = service.update(
+        UserResult result = service.update(
                 new UpdateProvisionedUserCommand(
                         1L,
                         null,
@@ -94,7 +94,7 @@ class ManageProvisionedUserServiceTest {
                 }, event -> {
                 });
 
-        ProvisionedUserResult result = service.update(
+        UserResult result = service.update(
                 new UpdateProvisionedUserCommand(
                         1L,
                         null,

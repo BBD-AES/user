@@ -3,7 +3,7 @@ package com.bbd.user.application.service;
 import com.bbd.user.application.event.UserChangeType;
 import com.bbd.user.application.event.UserChangedEvent;
 import com.bbd.user.application.model.UpdateUserStatusCommand;
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.UpdateUserStatusUseCase;
 import com.bbd.user.application.port.out.LoadUserPort;
 import com.bbd.user.application.port.out.RecordUserChangedEventPort;
@@ -28,7 +28,7 @@ public class UpdateUserStatusService implements UpdateUserStatusUseCase {
 
     @Override
     @Transactional
-    public UserSnapshotResult updateStatus(UpdateUserStatusCommand command) {
+    public UserResult updateStatus(UpdateUserStatusCommand command) {
         User target = loadUserPort.findById(command.targetUserId())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
@@ -42,6 +42,6 @@ public class UpdateUserStatusService implements UpdateUserStatusUseCase {
         recordUserChangedEventPort.record(event);
         applicationEventPublisher.publishEvent(event);
 
-        return UserSnapshotResult.from(saved);
+        return UserResult.from(saved);
     }
 }

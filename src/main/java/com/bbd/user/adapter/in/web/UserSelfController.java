@@ -1,7 +1,7 @@
 package com.bbd.user.adapter.in.web;
 
 import com.bbd.user.adapter.in.web.response.UserSnapshotResponse;
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.GetUserSnapshotUseCase;
 import com.bbd.user.global.error.ApiException;
 import com.bbd.user.global.error.dto.ErrorCode;
@@ -23,7 +23,7 @@ public class UserSelfController {
             throw new ApiException(ErrorCode.AUTH_UNAUTHENTICATED);
         }
 
-        UserSnapshotResult result = getUserSnapshotUseCase.getSnapshotByKeycloakSub(jwt.getSubject());
+        UserResult result = getUserSnapshotUseCase.getSnapshotByKeycloakSub(jwt.getSubject());
         return UserSnapshotResponse.from(result);
     }
 }

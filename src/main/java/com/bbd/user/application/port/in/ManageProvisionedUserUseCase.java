@@ -7,13 +7,13 @@ import com.bbd.user.application.model.*;
  */
 public interface ManageProvisionedUserUseCase {
 
-    ProvisionedUserResult create(CreateProvisionedUserCommand command);
+    UserResult create(CreateProvisionedUserCommand command);
 
-    ProvisionedUserResult update(UpdateProvisionedUserCommand command);
+    UserResult update(UpdateProvisionedUserCommand command);
 
-    ProvisionedUserResult deactivate(Long userId);
+    UserResult deactivate(Long userId);
 
-    ProvisionedUserResult getById(Long userId);
+    UserResult getById(Long userId);
 
     ProvisionedUserSearchResult search(SearchProvisionedUsersCommand command);
 }

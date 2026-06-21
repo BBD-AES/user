@@ -7,8 +7,8 @@ import com.bbd.user.adapter.in.web.response.UserSearchResponse;
 import com.bbd.user.adapter.in.web.response.UserSnapshotResponse;
 import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
 import com.bbd.user.application.model.UpdateUserStatusCommand;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.model.UserSearchCondition;
-import com.bbd.user.application.model.UserSnapshotResult;
 import com.bbd.user.application.port.in.SearchUsersUseCase;
 import com.bbd.user.application.port.in.UpdateUserAuthorizationUseCase;
 import com.bbd.user.application.port.in.UpdateUserStatusUseCase;
@@ -92,7 +92,7 @@ public class AdminUserController {
             @PathVariable Long userId,
             @Valid @RequestBody UpdateUserAuthorizationRequest request
     ) {
-        UserSnapshotResult result = updateUserAuthorizationUseCase.updateAuthorization(
+        UserResult result = updateUserAuthorizationUseCase.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
                         userId,
                         request.status(),
@@ -111,7 +111,7 @@ public class AdminUserController {
             @PathVariable Long userId,
             @Valid @RequestBody UpdateUserStatusRequest request
     ) {
-        UserSnapshotResult result = updateUserStatusUseCase.updateStatus(
+        UserResult result = updateUserStatusUseCase.updateStatus(
                 new UpdateUserStatusCommand(
                         userId,
                         request.status()

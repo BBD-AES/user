@@ -1,6 +1,6 @@
 package com.bbd.user.adapter.in.web.response;
 
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.UserRole;
 import com.bbd.user.domain.UserStatus;
@@ -26,7 +26,7 @@ public record UserSnapshotResponse(
         Long version
 ) {
 
-    public static UserSnapshotResponse from(UserSnapshotResult result) {
+    public static UserSnapshotResponse from(UserResult result) {
         return new UserSnapshotResponse(
                 result.userId(),
                 result.keycloakSub(),

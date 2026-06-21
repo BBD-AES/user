@@ -1,6 +1,6 @@
 package com.bbd.user.adapter.in.scim;
 
-import com.bbd.user.application.model.ProvisionedUserResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.UserRole;
 import com.bbd.user.domain.UserStatus;
@@ -53,7 +53,7 @@ public record ScimUserResponse(
      이 변환은 Adapter 내부에서 끝나므로 application/domain 계층은
      SCIM schema, URN, ETag, location 형식을 알 필요가 없다.
      */
-    public static ScimUserResponse from(ProvisionedUserResult result, String location) {
+    public static ScimUserResponse from(UserResult result, String location) {
         List<ScimUserRequest.ScimEmail> emails = result.email() == null
                 ? List.of()
                 : List.of(new ScimUserRequest.ScimEmail(result.email(), "work", true));

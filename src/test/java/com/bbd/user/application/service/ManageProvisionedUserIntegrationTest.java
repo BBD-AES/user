@@ -2,7 +2,7 @@ package com.bbd.user.application.service;
 
 import com.bbd.user.adapter.out.outbox.UserOutboxJpaRepository;
 import com.bbd.user.application.model.CreateProvisionedUserCommand;
-import com.bbd.user.application.model.ProvisionedUserResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.ManageProvisionedUserUseCase;
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.UserRole;
@@ -43,7 +43,7 @@ class ManageProvisionedUserIntegrationTest {
 
     @Test
     void scimCreateStoresPendingUserAndOutboxTogether() {
-        ProvisionedUserResult result = manageProvisionedUserUseCase.create(
+        UserResult result = manageProvisionedUserUseCase.create(
                 new CreateProvisionedUserCommand(
                         "scim-sub-1",
                         "SCIM-001",

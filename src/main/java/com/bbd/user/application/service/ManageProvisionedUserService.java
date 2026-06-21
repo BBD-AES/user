@@ -37,7 +37,7 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
 
     @Override
     @Transactional
-    public ProvisionedUserResult create(CreateProvisionedUserCommand command) {
+    public UserResult create(CreateProvisionedUserCommand command) {
         validateCreate(command);
         rejectDuplicate(command.keycloakSub(), command.employeeNumber(), null);
 
@@ -54,12 +54,12 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
         ));
 
         publish(created, UserChangeType.USER_CREATED);
-        return ProvisionedUserResult.from(created);
+        return UserResult.from(created);
     }
 
     @Override
     @Transactional
-    public ProvisionedUserResult update(UpdateProvisionedUserCommand command) {
+    public UserResult update(UpdateProvisionedUserCommand command) {
         User current = loadUserPort.findById(command.userId())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
@@ -85,25 +85,25 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
                 : UserChangeType.USER_PROFILE_CHANGED;
 
         publish(saved, eventType);
-        return ProvisionedUserResult.from(saved);
+        return UserResult.from(saved);
     }
 
     @Override
     @Transactional
-    public ProvisionedUserResult deactivate(Long userId) {
+    public UserResult deactivate(Long userId) {
         User current = loadUserPort.findById(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
         User saved = saveUserPort.save(current.deactivate());
         publish(saved, UserChangeType.USER_DEACTIVATED);
-        return ProvisionedUserResult.from(saved);
+        return UserResult.from(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ProvisionedUserResult getById(Long userId) {
+    public UserResult getById(Long userId) {
         return loadUserPort.findById(userId)
-                .map(ProvisionedUserResult::from)
+                .map(UserResult::from)
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
@@ -114,8 +114,8 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
         int count = Math.min(Math.max(command.count(), 1), MAX_PAGE_SIZE);
 
         if (command.field() != null) {
-            List<ProvisionedUserResult> users = findExact(command.field(), command.value())
-                    .map(ProvisionedUserResult::from)
+            List<UserResult> users = findExact(command.field(), command.value())
+                    .map(UserResult::from)
                     .stream()
                     .toList();
 
@@ -123,9 +123,9 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
         }
 
         int offset = startIndex - 1;
-        List<ProvisionedUserResult> users = loadUserPort.findAll(offset, count)
+        List<UserResult> users = loadUserPort.findAll(offset, count)
                 .stream()
-                .map(ProvisionedUserResult::from)
+                .map(UserResult::from)
                 .toList();
 
         return new ProvisionedUserSearchResult(users, loadUserPort.countAll(), startIndex);

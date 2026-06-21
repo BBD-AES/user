@@ -3,13 +3,12 @@ package com.bbd.user.application.service;
 import com.bbd.user.application.event.UserChangeType;
 import com.bbd.user.application.event.UserChangedEvent;
 import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.UpdateUserAuthorizationUseCase;
 import com.bbd.user.application.port.out.LoadUserPort;
 import com.bbd.user.application.port.out.RecordUserChangedEventPort;
 import com.bbd.user.application.port.out.SaveUserPort;
 import com.bbd.user.domain.User;
-import com.bbd.user.domain.UserRole;
 import com.bbd.user.domain.UserStatus;
 import com.bbd.user.global.error.ApiException;
 import com.bbd.user.global.error.dto.ErrorCode;
@@ -48,7 +47,7 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
 
     @Override
     @Transactional
-    public UserSnapshotResult updateAuthorization(UpdateUserAuthorizationCommand command) {
+    public UserResult updateAuthorization(UpdateUserAuthorizationCommand command) {
         User target = loadUserPort.findById(command.targetUserId())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
@@ -79,6 +78,6 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
          같은 Redis Snapshot key를 다시 삭제해 복구한다.
          */
         applicationEventPublisher.publishEvent(event);
-        return UserSnapshotResult.from(saved);
+        return UserResult.from(saved);
     }
 }

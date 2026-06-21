@@ -2,7 +2,7 @@ package com.bbd.user.application.service;
 
 import com.bbd.user.application.event.UserChangedEvent;
 import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.out.LoadUserPort;
 import com.bbd.user.application.port.out.RecordUserChangedEventPort;
 import com.bbd.user.application.port.out.SaveUserPort;
@@ -46,7 +46,7 @@ class UpdateUserAuthorizationServiceTest {
                         applicationEventPublisher
                 );
 
-        UserSnapshotResult result = service.updateAuthorization(
+        UserResult result = service.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
                         target.id(),
                         UserStatus.ACTIVE,
@@ -76,7 +76,7 @@ class UpdateUserAuthorizationServiceTest {
                 }, event -> {
                 });
 
-        UserSnapshotResult result = service.updateAuthorization(
+        UserResult result = service.updateAuthorization(
                 new UpdateUserAuthorizationCommand(
                         target.id(),
                         UserStatus.ACTIVE,

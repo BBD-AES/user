@@ -1,9 +1,9 @@
 package com.bbd.user.application.port.in;
 
 import com.bbd.user.application.model.UpdateUserStatusCommand;
-import com.bbd.user.application.model.UserSnapshotResult;
+import com.bbd.user.application.model.UserResult;
 
 public interface UpdateUserStatusUseCase {
 
-    UserSnapshotResult updateStatus(UpdateUserStatusCommand command);
+    UserResult updateStatus(UpdateUserStatusCommand command);
 }
