@@ -60,11 +60,7 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
 
     @Override
     public List<User> findAll(int offset, int count) {
-        int page = offset / count;
-
-        return userJpaRepository.findAll(
-                        PageRequest.of(page, count, Sort.by(Sort.Direction.ASC, "id"))
-                )
+        return userJpaRepository.findAllByOffset(offset, count)
                 .stream()
                 .map(UserJpaEntity::toDomain)
                 .toList();

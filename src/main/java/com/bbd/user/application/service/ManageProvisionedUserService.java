@@ -114,12 +114,15 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
         int count = Math.min(Math.max(command.count(), 1), MAX_PAGE_SIZE);
 
         if (command.field() != null) {
-            List<ProvisionedUserResult> users = findExact(command.field(), command.value())
-                    .map(ProvisionedUserResult::from)
+            Optional<ProvisionedUserResult> matched = findExact(command.field(), command.value())
+                    .map(ProvisionedUserResult::from);
+            List<ProvisionedUserResult> users = matched
                     .stream()
+                    .skip(startIndex - 1L)
+                    .limit(count)
                     .toList();
 
-            return new ProvisionedUserSearchResult(users, users.size(), startIndex);
+            return new ProvisionedUserSearchResult(users, matched.isPresent() ? 1L : 0L, startIndex);
         }
 
         int offset = startIndex - 1;
