@@ -48,7 +48,7 @@ public record ScimUserResponse(
 ) {
 
     /*
-     application 계층의 ProvisionedUserResult를 외부 SCIM 표현으로 변환한다.
+     application 계층의 UserResult를 외부 SCIM 표현으로 변환한다.
 
      이 변환은 Adapter 내부에서 끝나므로 application/domain 계층은
      SCIM schema, URN, ETag, location 형식을 알 필요가 없다.

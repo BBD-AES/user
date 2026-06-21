@@ -10,7 +10,7 @@ import com.bbd.user.domain.UserStatus;
  UserSnapshot API의 응답 DTO.
 
  이 객체는 web adapter 계층의 response 모델이다.
- application 계층의 UserSnapshotResult를 HTTP 응답 형태로 변환한다.
+ application 계층의 UserResult를 HTTP 응답 형태로 변환한다.
  */
 public record UserSnapshotResponse(
         Long userId,
