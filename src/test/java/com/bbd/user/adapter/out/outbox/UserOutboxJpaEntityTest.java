@@ -48,6 +48,26 @@ class UserOutboxJpaEntityTest {
         assertEquals(1, event.getAttempts());
     }
 
+    @Test
+    void truncatesLastErrorToColumnLength() {
+        UserOutboxJpaEntity event = pendingEvent();
+        String message = "가".repeat(1001);
+
+        event.markFailed(new IllegalStateException(message), 3);
+
+        assertEquals(1000, event.getLastError().length());
+        assertEquals(message.substring(0, 1000), event.getLastError());
+    }
+
+    @Test
+    void usesExceptionClassNameWhenErrorMessageIsNull() {
+        UserOutboxJpaEntity event = pendingEvent();
+
+        event.markFailed(new IllegalStateException(), 3);
+
+        assertEquals("IllegalStateException", event.getLastError());
+    }
+
     private UserOutboxJpaEntity pendingEvent() {
         return UserOutboxJpaEntity.pending(
                 new UserChangedEvent(
