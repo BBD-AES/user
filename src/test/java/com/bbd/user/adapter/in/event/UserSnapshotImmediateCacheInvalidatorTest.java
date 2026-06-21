@@ -77,6 +77,36 @@ class UserSnapshotImmediateCacheInvalidatorTest {
         );
     }
 
+    @Test
+    void duplicateEventEvictionIsIdempotent() {
+        UserEventProperties properties = new UserEventProperties();
+        properties.setCacheKeyPrefix("user:snapshot:");
+        RecordingRedisTemplate redisTemplate = new RecordingRedisTemplate(false);
+        SimpleMeterRegistry meterRegistry = new SimpleMeterRegistry();
+        UserSnapshotCacheEvictor cacheEvictor = new UserSnapshotCacheEvictor(
+                redisTemplate,
+                properties,
+                new UserEventMetrics(meterRegistry)
+        );
+        UserSnapshotImmediateCacheInvalidator invalidator =
+                new UserSnapshotImmediateCacheInvalidator(cacheEvictor);
+        UserChangedEvent event = event("target-sub");
+
+        invalidator.invalidate(event);
+        invalidator.invalidate(event);
+
+        assertEquals("user:snapshot:target-sub", redisTemplate.deletedKey);
+        assertEquals(2, redisTemplate.deleteCount);
+        assertEquals(
+                2.0,
+                meterRegistry.get("bbd.user.snapshot.eviction")
+                        .tag("source", "after_commit")
+                        .tag("result", "success")
+                        .counter()
+                        .count()
+        );
+    }
+
     private static UserChangedEvent event(String keycloakSub) {
         return new UserChangedEvent(
                 UUID.randomUUID(),
@@ -97,6 +127,7 @@ class UserSnapshotImmediateCacheInvalidatorTest {
 
         private final boolean fail;
         private String deletedKey;
+        private int deleteCount;
 
         private RecordingRedisTemplate(boolean fail) {
             this.fail = fail;
@@ -109,7 +140,8 @@ class UserSnapshotImmediateCacheInvalidatorTest {
             }
 
             this.deletedKey = key;
-            return true;
+            this.deleteCount++;
+            return this.deleteCount == 1;
         }
     }
 }

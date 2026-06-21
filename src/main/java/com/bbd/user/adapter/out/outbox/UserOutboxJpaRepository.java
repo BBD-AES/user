@@ -30,8 +30,8 @@ public interface UserOutboxJpaRepository extends JpaRepository<UserOutboxJpaEnti
             FROM user_outbox
             WHERE status = 'PENDING'
             ORDER BY occurred_at
-            FOR UPDATE SKIP LOCKED
             LIMIT :batchSize
+            FOR UPDATE SKIP LOCKED
             """, nativeQuery = true)
     List<UserOutboxJpaEntity> findPendingForPublish(@Param("batchSize") int batchSize);
 }
