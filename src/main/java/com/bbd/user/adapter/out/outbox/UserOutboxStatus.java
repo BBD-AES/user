@@ -9,10 +9,11 @@ package com.bbd.user.adapter.out.outbox;
  PUBLISHED:
  Kafka send 결과를 성공으로 확인한 상태.
 
- 발행 실패는 별도 FAILED 상태로 고정하지 않는다.
- PENDING을 유지하면서 attempts와 lastError를 기록해 다음 polling에서 재시도한다.
+ FAILED:
+ Kafka 발행 실패가 설정된 재시도 상한에 도달해 자동 polling 대상에서 제외된 상태.
  */
 public enum UserOutboxStatus {
     PENDING,
-    PUBLISHED
+    PUBLISHED,
+    FAILED
 }
