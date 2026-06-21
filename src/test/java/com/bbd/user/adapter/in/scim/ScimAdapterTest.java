@@ -5,6 +5,7 @@ import com.bbd.user.application.model.UpdateProvisionedUserCommand;
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.UserRole;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -170,5 +171,26 @@ class ScimAdapterTest {
         assertEquals(UserRole.HQ_STAFF, command.role());
         assertEquals(TenancyType.HQ, command.tenancyType());
         assertEquals("본사", command.tenancyName());
+    }
+
+    @Test
+    void rejectsExternalIdPatchAsImmutable() {
+        ScimPatchRequest request = new ScimPatchRequest(
+                List.of(ScimConstants.PATCH_OPERATION_SCHEMA),
+                List.of(new ScimPatchRequest.Operation(
+                        "replace",
+                        "externalId",
+                        "changed-sub"
+                ))
+        );
+
+        ScimException exception = assertThrows(
+                ScimException.class,
+                () -> patchMapper.toCommand(10L, request)
+        );
+
+        assertEquals("mutability", exception.getScimType());
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("externalId(Keycloak sub)는 생성 후 변경할 수 없습니다.", exception.getMessage());
     }
 }

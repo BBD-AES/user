@@ -147,11 +147,7 @@ public class ScimUserController {
         UserResult current = manageProvisionedUserUseCase.getById(userId);
         if (request.externalId() != null
                 && !request.externalId().equals(current.keycloakSub())) {
-            throw new ScimException(
-                    HttpStatus.BAD_REQUEST,
-                    "mutability",
-                    "externalId(Keycloak sub)는 생성 후 변경할 수 없습니다."
-            );
+            throw ScimException.externalIdImmutable();
         }
 
         ScimUserResponse response = response(

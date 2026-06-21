@@ -120,11 +120,7 @@ public class ScimPatchMapper {
             return;
         }
         if ("externalId".equalsIgnoreCase(path)) {
-            throw new ScimException(
-                    HttpStatus.BAD_REQUEST,
-                    "mutability",
-                    "externalId(Keycloak sub)는 생성 후 변경할 수 없습니다."
-            );
+            throw ScimException.externalIdImmutable();
         }
         if ("userName".equalsIgnoreCase(path)) {
             values.employeeNumber = stringValue(value);

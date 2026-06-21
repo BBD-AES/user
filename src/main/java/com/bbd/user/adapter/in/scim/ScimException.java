@@ -36,4 +36,12 @@ public class ScimException extends RuntimeException {
         this.status = status;
         this.scimType = scimType;
     }
+
+    public static ScimException externalIdImmutable() {
+        return new ScimException(
+                HttpStatus.BAD_REQUEST,
+                "mutability",
+                "externalId(Keycloak sub)는 생성 후 변경할 수 없습니다."
+        );
+    }
 }
