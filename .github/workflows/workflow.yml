@@ -33,7 +33,7 @@ jobs:
         run: |
           docker build \
             --build-arg GITHUB_USERNAME=${{ github.actor }} \
-            --build-arg GITHUB_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }} \
+            --build-arg GITHUB_TOKEN=${{ secrets.GH_GITHUB_TOKEN }} \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest \
             .
 
