@@ -117,9 +117,11 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
             List<UserResult> users = findExact(command.field(), command.value())
                     .map(UserResult::from)
                     .stream()
+                    .skip(startIndex - 1L)
+                    .limit(count)
                     .toList();
 
-            return new ProvisionedUserSearchResult(users, users.size(), startIndex);
+            return new ProvisionedUserSearchResult(users, matched.isPresent() ? 1L : 0L, startIndex);
         }
 
         int offset = startIndex - 1;

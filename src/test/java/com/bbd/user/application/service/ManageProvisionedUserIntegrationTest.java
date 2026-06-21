@@ -76,4 +76,57 @@ class ManageProvisionedUserIntegrationTest {
                 )
         );
     }
+
+    @Test
+    void scimSearchUsesExactOffsetForArbitraryStartIndex() {
+        createUser("scim-sub-1", "SCIM-001");
+        createUser("scim-sub-2", "SCIM-002");
+        createUser("scim-sub-3", "SCIM-003");
+        createUser("scim-sub-4", "SCIM-004");
+        createUser("scim-sub-5", "SCIM-005");
+
+        ProvisionedUserSearchResult result = manageProvisionedUserUseCase.search(
+                new SearchProvisionedUsersCommand(null, null, 3, 2)
+        );
+
+        assertEquals(5L, result.totalResults());
+        assertEquals(3, result.startIndex());
+        assertEquals(2, result.users().size());
+        assertEquals("SCIM-003", result.users().get(0).employeeNumber());
+        assertEquals("SCIM-004", result.users().get(1).employeeNumber());
+    }
+
+    @Test
+    void scimExactFilterAppliesStartIndexToMatchedResource() {
+        createUser("scim-sub-1", "SCIM-001");
+
+        ProvisionedUserSearchResult result = manageProvisionedUserUseCase.search(
+                new SearchProvisionedUsersCommand(
+                        ProvisionedUserSearchField.EMPLOYEE_NUMBER,
+                        "SCIM-001",
+                        2,
+                        100
+                )
+        );
+
+        assertEquals(1L, result.totalResults());
+        assertEquals(2, result.startIndex());
+        assertEquals(0, result.users().size());
+    }
+
+    private void createUser(String keycloakSub, String employeeNumber) {
+        manageProvisionedUserUseCase.create(
+                new CreateProvisionedUserCommand(
+                        keycloakSub,
+                        employeeNumber,
+                        "SCIM 사용자 " + employeeNumber,
+                        employeeNumber.toLowerCase() + "@example.com",
+                        "직원",
+                        UserRole.BRANCH_STAFF,
+                        TenancyType.BRANCH,
+                        "강남 지점",
+                        true
+                )
+        );
+    }
 }
