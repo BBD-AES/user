@@ -72,18 +72,6 @@ public record User(Long id, String keycloakSub, String employeeNumber, String di
         return status == UserStatus.ACTIVE;
     }
 
-    public boolean belongsToHq() {
-        return tenancyType == TenancyType.HQ;
-    }
-
-    public boolean belongsToBranch() {
-        return tenancyType == TenancyType.BRANCH;
-    }
-
-    public boolean hasRole(UserRole requiredRole) {
-        return role == requiredRole;
-    }
-
     /*
      midPoint가 ERP 대상자로 판단한 사용자를 승인 대기 상태로 생성한다.
 
@@ -220,6 +208,7 @@ public record User(Long id, String keycloakSub, String employeeNumber, String di
         );
     }
 
+    // 권한 변경
     public User changeStatus(UserStatus newStatus) {
         return new User(
                 id,

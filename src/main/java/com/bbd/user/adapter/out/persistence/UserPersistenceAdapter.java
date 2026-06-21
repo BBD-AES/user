@@ -73,6 +73,10 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
 
     @Override
     public UserSearchPage searchUsers(UserSearchCondition condition) {
+    /*
+     검색 조건(Specification)을 적용해 사용자 목록을 페이징 조회한다.
+     결과 순서가 흔들리지 않도록 id 오름차순으로 정렬한다.
+     */
         Page<UserJpaEntity> result = userJpaRepository.findAll(
                 searchSpec(condition),
                 PageRequest.of(
@@ -82,6 +86,10 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
                 )
         );
 
+    /*
+     조회된 JPA Entity 목록을 도메인 User로 변환하고,
+     전체 건수와 현재 페이지 정보를 application 계층의 페이지 모델로 반환한다.
+     */
         return new UserSearchPage(
                 result.getContent().stream()
                         .map(UserJpaEntity::toDomain)
