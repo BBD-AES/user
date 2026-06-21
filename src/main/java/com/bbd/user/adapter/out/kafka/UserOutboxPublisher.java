@@ -2,17 +2,16 @@ package com.bbd.user.adapter.out.kafka;
 
 import com.bbd.user.adapter.out.outbox.UserOutboxJpaEntity;
 import com.bbd.user.adapter.out.outbox.UserOutboxJpaRepository;
+import com.bbd.user.application.port.out.PublishUserEventPort;
 import com.bbd.user.config.UserEventProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /*
  user_outbox의 PENDING 이벤트를 Kafka로 발행하는 scheduled publisher.
@@ -40,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class UserOutboxPublisher {
 
     private final UserOutboxJpaRepository userOutboxJpaRepository;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final PublishUserEventPort publishUserEventPort;
     private final UserEventProperties properties;
 
     /*
@@ -67,13 +66,7 @@ public class UserOutboxPublisher {
      */
     private boolean publish(UserOutboxJpaEntity event) {
         try {
-            kafkaTemplate.send(
-                            properties.getTopic(),
-                            event.getEventKey(),
-                            event.getPayload()
-                    )
-                    .get(properties.getSendTimeoutMs(), TimeUnit.MILLISECONDS);
-
+            publishUserEventPort.publish(event.getEventKey(), event.getPayload());
             event.markPublished(Instant.now());
             return true;
         } catch (InterruptedException e) {
