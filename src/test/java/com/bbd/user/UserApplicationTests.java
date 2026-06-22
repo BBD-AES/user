@@ -21,7 +21,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 		"spring.jpa.hibernate.ddl-auto=none",
 		"spring.flyway.enabled=true",
 		"spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/test-jwks",
-		"bbd.user.events.enabled=false"
+		"bbd.user.events.enabled=false",
+		"bbd.security.enabled=false"
 })
 class UserApplicationTests {
 

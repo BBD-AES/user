@@ -97,8 +97,7 @@ public record User(Long id, String keycloakSub, String employeeNumber, String di
                 displayName,
                 email,
                 position,
-                // 임시 ACTIVE로 처리 (원래는 PENDING)
-                sourceActive ? UserStatus.ACTIVE : UserStatus.INACTIVE,
+                sourceActive ? UserStatus.PENDING : UserStatus.INACTIVE,
                 role,
                 tenancyType,
                 tenancyName,

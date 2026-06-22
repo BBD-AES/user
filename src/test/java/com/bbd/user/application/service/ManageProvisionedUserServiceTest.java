@@ -6,6 +6,7 @@ import com.bbd.user.application.model.CreateProvisionedUserCommand;
 import com.bbd.user.application.model.UpdateProvisionedUserCommand;
 import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.out.LoadUserPort;
+import com.bbd.user.application.port.out.RecordSnapshotInvalidationPort;
 import com.bbd.user.application.port.out.RecordUserChangedEventPort;
 import com.bbd.user.application.port.out.SaveUserPort;
 import com.bbd.user.domain.TenancyType;
@@ -31,15 +32,24 @@ class ManageProvisionedUserServiceTest {
     void activeSourceUserIsCreatedAsPendingAndRecordsCreatedEvent() {
         InMemoryUserPorts userPorts = new InMemoryUserPorts();
         RecordingEventPort eventPort = new RecordingEventPort();
+        RecordingSnapshotInvalidationPort snapshotInvalidationPort =
+                new RecordingSnapshotInvalidationPort();
         RecordingPublisher publisher = new RecordingPublisher();
         ManageProvisionedUserService service =
-                new ManageProvisionedUserService(userPorts, userPorts, eventPort, publisher);
+                new ManageProvisionedUserService(
+                        userPorts,
+                        userPorts,
+                        eventPort,
+                        snapshotInvalidationPort,
+                        publisher
+                );
 
         UserResult result = service.create(createCommand("sub-1", "EMP-1", true));
 
         assertEquals(UserStatus.PENDING, result.status());
         assertEquals(1L, result.userId());
         assertEquals(UserChangeType.USER_CREATED, eventPort.recorded.eventType());
+        assertEquals(eventPort.recorded, snapshotInvalidationPort.recorded);
         assertEquals(eventPort.recorded, publisher.published);
     }
 
@@ -48,6 +58,7 @@ class ManageProvisionedUserServiceTest {
         InMemoryUserPorts userPorts = new InMemoryUserPorts();
         ManageProvisionedUserService service =
                 new ManageProvisionedUserService(userPorts, userPorts, event -> {
+                }, event -> {
                 }, event -> {
                 });
 
@@ -64,6 +75,7 @@ class ManageProvisionedUserServiceTest {
         RecordingEventPort eventPort = new RecordingEventPort();
         ManageProvisionedUserService service =
                 new ManageProvisionedUserService(userPorts, userPorts, eventPort, event -> {
+                }, event -> {
                 });
 
         UserResult result = service.update(
@@ -92,6 +104,7 @@ class ManageProvisionedUserServiceTest {
         ManageProvisionedUserService service =
                 new ManageProvisionedUserService(userPorts, userPorts, event -> {
                 }, event -> {
+                }, event -> {
                 });
 
         UserResult result = service.update(
@@ -119,6 +132,7 @@ class ManageProvisionedUserServiceTest {
         userPorts.put(user(1L, "sub-1", "EMP-1", UserStatus.PENDING, 1L));
         ManageProvisionedUserService service =
                 new ManageProvisionedUserService(userPorts, userPorts, event -> {
+                }, event -> {
                 }, event -> {
                 });
 
@@ -236,6 +250,15 @@ class ManageProvisionedUserServiceTest {
     }
 
     private static class RecordingEventPort implements RecordUserChangedEventPort {
+        private UserChangedEvent recorded;
+
+        @Override
+        public void record(UserChangedEvent event) {
+            this.recorded = event;
+        }
+    }
+
+    private static class RecordingSnapshotInvalidationPort implements RecordSnapshotInvalidationPort {
         private UserChangedEvent recorded;
 
         @Override

@@ -26,7 +26,7 @@ public class UserOutboxPersistenceAdapter implements RecordUserChangedEventPort 
     @Override
     public void record(UserChangedEvent event) {
         try {
-            // Kafka와 DLT에서도 동일한 event contract를 재사용할 수 있도록 JSON payload로 저장한다.
+            // Kafka 소비 서비스가 동일한 event contract를 사용할 수 있도록 JSON payload로 저장한다.
             String payload = objectMapper.writeValueAsString(event);
             userOutboxJpaRepository.save(UserOutboxJpaEntity.pending(event, payload));
         } catch (Exception e) {

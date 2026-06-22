@@ -1,6 +1,7 @@
 package com.bbd.user.application.service;
 
 import com.bbd.user.adapter.out.outbox.UserOutboxJpaRepository;
+import com.bbd.user.adapter.out.snapshot.SnapshotInvalidationOutboxJpaRepository;
 import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
 import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.UpdateUserAuthorizationUseCase;
@@ -36,7 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "spring.jpa.hibernate.ddl-auto=none",
         "spring.flyway.enabled=true",
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/test-jwks",
-        "bbd.user.events.enabled=false"
+        "bbd.user.events.enabled=false",
+        "bbd.security.enabled=false"
 })
 @Transactional
 class UpdateUserAuthorizationIntegrationTest {
@@ -49,6 +51,9 @@ class UpdateUserAuthorizationIntegrationTest {
 
     @Autowired
     private UserOutboxJpaRepository userOutboxJpaRepository;
+
+    @Autowired
+    private SnapshotInvalidationOutboxJpaRepository snapshotInvalidationOutboxJpaRepository;
 
     @Test
     void userUpdateAndOutboxAreStoredTogether() {
@@ -73,10 +78,19 @@ class UpdateUserAuthorizationIntegrationTest {
 
         assertEquals(2L, result.version());
         assertEquals(1L, userOutboxJpaRepository.count());
+        assertEquals(1L, snapshotInvalidationOutboxJpaRepository.count());
         assertEquals(
                 "PENDING",
                 jdbcTemplate.queryForObject(
                         "SELECT status FROM user_outbox WHERE aggregate_id = ?",
+                        String.class,
+                        targetId
+                )
+        );
+        assertEquals(
+                "PENDING",
+                jdbcTemplate.queryForObject(
+                        "SELECT status FROM snapshot_invalidation_outbox WHERE aggregate_id = ?",
                         String.class,
                         targetId
                 )

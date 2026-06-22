@@ -5,6 +5,7 @@ import com.bbd.user.application.event.UserChangedEvent;
 import com.bbd.user.application.model.*;
 import com.bbd.user.application.port.in.ManageProvisionedUserUseCase;
 import com.bbd.user.application.port.out.LoadUserPort;
+import com.bbd.user.application.port.out.RecordSnapshotInvalidationPort;
 import com.bbd.user.application.port.out.RecordUserChangedEventPort;
 import com.bbd.user.application.port.out.SaveUserPort;
 import com.bbd.user.domain.User;
@@ -33,6 +34,7 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
     private final RecordUserChangedEventPort recordUserChangedEventPort;
+    private final RecordSnapshotInvalidationPort recordSnapshotInvalidationPort;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
@@ -186,6 +188,7 @@ public class ManageProvisionedUserService implements ManageProvisionedUserUseCas
     private void publish(User user, UserChangeType eventType) {
         UserChangedEvent event = UserChangedEvent.from(user, eventType);
         recordUserChangedEventPort.record(event);
+        recordSnapshotInvalidationPort.record(event);
         applicationEventPublisher.publishEvent(event);
     }
 }

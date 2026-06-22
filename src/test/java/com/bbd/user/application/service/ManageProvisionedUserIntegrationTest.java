@@ -1,6 +1,7 @@
 package com.bbd.user.application.service;
 
 import com.bbd.user.adapter.out.outbox.UserOutboxJpaRepository;
+import com.bbd.user.adapter.out.snapshot.SnapshotInvalidationOutboxJpaRepository;
 import com.bbd.user.application.model.CreateProvisionedUserCommand;
 import com.bbd.user.application.model.ProvisionedUserSearchField;
 import com.bbd.user.application.model.ProvisionedUserSearchResult;
@@ -30,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "spring.flyway.enabled=true",
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/test-jwks",
         "bbd.user.events.enabled=false",
+        "bbd.security.enabled=false",
         "bbd.user.scim.enabled=false"
 })
 @Transactional
@@ -40,6 +42,9 @@ class ManageProvisionedUserIntegrationTest {
 
     @Autowired
     private UserOutboxJpaRepository userOutboxJpaRepository;
+
+    @Autowired
+    private SnapshotInvalidationOutboxJpaRepository snapshotInvalidationOutboxJpaRepository;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -70,10 +75,19 @@ class ManageProvisionedUserIntegrationTest {
                 )
         );
         assertEquals(1L, userOutboxJpaRepository.count());
+        assertEquals(1L, snapshotInvalidationOutboxJpaRepository.count());
         assertEquals(
                 "USER_CREATED",
                 jdbcTemplate.queryForObject(
                         "SELECT event_type FROM user_outbox WHERE aggregate_id = ?",
+                        String.class,
+                        result.userId()
+                )
+        );
+        assertEquals(
+                "PENDING",
+                jdbcTemplate.queryForObject(
+                        "SELECT status FROM snapshot_invalidation_outbox WHERE aggregate_id = ?",
                         String.class,
                         result.userId()
                 )

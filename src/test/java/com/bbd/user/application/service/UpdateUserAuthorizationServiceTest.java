@@ -4,6 +4,7 @@ import com.bbd.user.application.event.UserChangedEvent;
 import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
 import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.out.LoadUserPort;
+import com.bbd.user.application.port.out.RecordSnapshotInvalidationPort;
 import com.bbd.user.application.port.out.RecordUserChangedEventPort;
 import com.bbd.user.application.port.out.SaveUserPort;
 import com.bbd.user.domain.TenancyType;
@@ -36,6 +37,7 @@ class UpdateUserAuthorizationServiceTest {
         User target = user(2L, "target-sub", UserStatus.PENDING, UserRole.BRANCH_STAFF, 3L);
         StubUserPorts userPorts = new StubUserPorts(target);
         StubEventPort eventPort = new StubEventPort();
+        StubSnapshotInvalidationPort snapshotInvalidationPort = new StubSnapshotInvalidationPort();
         StubApplicationEventPublisher applicationEventPublisher = new StubApplicationEventPublisher();
 
         UpdateUserAuthorizationService service =
@@ -43,6 +45,7 @@ class UpdateUserAuthorizationServiceTest {
                         userPorts,
                         userPorts,
                         eventPort,
+                        snapshotInvalidationPort,
                         applicationEventPublisher
                 );
 
@@ -63,6 +66,7 @@ class UpdateUserAuthorizationServiceTest {
         assertEquals(4L, result.version());
         assertEquals(result.keycloakSub(), eventPort.recorded.keycloakSub());
         assertEquals(result.version(), eventPort.recorded.version());
+        assertEquals(eventPort.recorded, snapshotInvalidationPort.recorded);
         assertEquals(eventPort.recorded, applicationEventPublisher.published);
     }
 
@@ -73,6 +77,7 @@ class UpdateUserAuthorizationServiceTest {
 
         UpdateUserAuthorizationService service =
                 new UpdateUserAuthorizationService(userPorts, userPorts, event -> {
+                }, event -> {
                 }, event -> {
                 });
 
@@ -161,6 +166,16 @@ class UpdateUserAuthorizationServiceTest {
     private static class StubEventPort implements RecordUserChangedEventPort {
 
         // application service가 기록한 event를 assertion에서 확인하기 위한 test double.
+        private UserChangedEvent recorded;
+
+        @Override
+        public void record(UserChangedEvent event) {
+            this.recorded = event;
+        }
+    }
+
+    private static class StubSnapshotInvalidationPort implements RecordSnapshotInvalidationPort {
+
         private UserChangedEvent recorded;
 
         @Override
