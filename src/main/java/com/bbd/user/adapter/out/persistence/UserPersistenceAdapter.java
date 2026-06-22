@@ -185,7 +185,9 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
             current = current.getCause();
         }
 
-        return details.toString().toLowerCase(Locale.ROOT);
+        return details.toString()
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("sql \\[[^]]*]", " ");
     }
 
     private boolean isUniqueViolation(Throwable exception, String details) {

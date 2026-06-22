@@ -6,6 +6,7 @@ import com.bbd.user.application.model.UpdateUserStatusCommand;
 import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.UpdateUserStatusUseCase;
 import com.bbd.user.application.port.out.LoadUserPort;
+import com.bbd.user.application.port.out.RecordSnapshotInvalidationPort;
 import com.bbd.user.application.port.out.RecordUserChangedEventPort;
 import com.bbd.user.application.port.out.SaveUserPort;
 import com.bbd.user.domain.User;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  사용자를 조회한 뒤 도메인 모델의 changeStatus()로 상태를 변경하고,
  변경 결과를 저장한다.
 
- 저장 이후에는 UserSnapshot 갱신/삭제와 Kafka Outbox 복구 흐름에 사용할
+ 저장 이후에는 UserSnapshot 무효화와 Kafka Outbox 복구 흐름에 사용할
  UserChangedEvent를 기록하고 애플리케이션 이벤트로 발행한다.
  */
 @Service
@@ -33,6 +34,7 @@ public class UpdateUserStatusService implements UpdateUserStatusUseCase {
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
     private final RecordUserChangedEventPort recordUserChangedEventPort;
+    private final RecordSnapshotInvalidationPort recordSnapshotInvalidationPort;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
@@ -61,11 +63,12 @@ public class UpdateUserStatusService implements UpdateUserStatusUseCase {
 
         /*
          변경된 사용자 정보를 기반으로 이벤트를 생성한다.
-         record()는 Outbox 등에 이벤트를 기록해 장애 시 재처리할 수 있게 한다.
-         publishEvent()는 트랜잭션 이후 Redis Snapshot 갱신/삭제 같은 후속 처리를 트리거한다.
+         record()는 Kafka 발행과 Redis 삭제 복구 지점을 각각 기록한다.
+         publishEvent()는 트랜잭션 이후 Redis Snapshot 즉시 삭제를 트리거한다.
          */
         UserChangedEvent event = UserChangedEvent.from(saved, eventType);
         recordUserChangedEventPort.record(event);
+        recordSnapshotInvalidationPort.record(event);
         // Spring 애플리케이션 내부 이벤트를 발행
         applicationEventPublisher.publishEvent(event);
 

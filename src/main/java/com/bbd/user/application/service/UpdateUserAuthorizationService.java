@@ -6,6 +6,7 @@ import com.bbd.user.application.model.UpdateUserAuthorizationCommand;
 import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.UpdateUserAuthorizationUseCase;
 import com.bbd.user.application.port.out.LoadUserPort;
+import com.bbd.user.application.port.out.RecordSnapshotInvalidationPort;
 import com.bbd.user.application.port.out.RecordUserChangedEventPort;
 import com.bbd.user.application.port.out.SaveUserPort;
 import com.bbd.user.domain.User;
@@ -27,14 +28,14 @@ import org.springframework.transaction.annotation.Transactional;
  3. 변경 대상 사용자 조회
  4. User 도메인 규칙으로 새 상태 생성
  5. users 테이블 수정
- 6. 같은 DB 트랜잭션에 user_outbox 저장
+ 6. 같은 DB 트랜잭션에 user_outbox와 snapshot_invalidation_outbox 저장
  7. commit 후 Redis Snapshot 즉시 삭제용 Spring event 발행
 
  User 저장과 Outbox 저장 중 하나라도 실패하면 전체 트랜잭션이 rollback된다.
  따라서 DB만 바뀌고 이벤트가 사라지는 상태를 방지한다.
 
- Redis 즉시 삭제는 AFTER_COMMIT listener가 처리하고,
- Kafka 발행은 UserOutboxPublisher가 PENDING Outbox를 읽어서 처리한다.
+ Redis 즉시 삭제와 재시도는 snapshot_invalidation_outbox 기준으로 처리하고,
+ Kafka 발행은 UserOutboxPublisher가 user_outbox의 PENDING row를 읽어서 처리한다.
  */
 @Service
 @RequiredArgsConstructor
@@ -43,6 +44,7 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
     private final RecordUserChangedEventPort recordUserChangedEventPort;
+    private final RecordSnapshotInvalidationPort recordSnapshotInvalidationPort;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
@@ -66,16 +68,17 @@ public class UpdateUserAuthorizationService implements UpdateUserAuthorizationUs
                 ? UserChangeType.USER_DEACTIVATED
                 : UserChangeType.USER_AUTHORIZATION_CHANGED;
 
-        // User 저장과 같은 @Transactional 범위에서 Outbox를 저장한다.
+        // User 저장과 같은 @Transactional 범위에서 Kafka/Redis 복구 지점을 저장한다.
         UserChangedEvent event = UserChangedEvent.from(saved, eventType);
         recordUserChangedEventPort.record(event);
+        recordSnapshotInvalidationPort.record(event);
 
         /*
          Spring event는 현재 transaction 안에서 발행하지만 실제 Redis 삭제는
          AFTER_COMMIT listener가 DB commit 성공 이후에 수행한다.
 
-         즉시 삭제가 실패해도 Outbox -> Kafka -> Consumer 경로가
-         같은 Redis Snapshot key를 다시 삭제해 복구한다.
+         즉시 삭제가 실패해도 snapshot_invalidation_outbox에 남은 PENDING row를
+         scheduler가 다시 삭제해 복구한다.
          */
         applicationEventPublisher.publishEvent(event);
         return UserResult.from(saved);

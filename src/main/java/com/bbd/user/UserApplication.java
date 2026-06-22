@@ -12,7 +12,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
  @EnableScheduling:
  user_outbox 테이블의 PENDING 이벤트를 주기적으로 조회해서
- Kafka로 발행하는 UserOutboxPublisher를 실행한다.
+ Kafka로 발행하는 UserOutboxPublisher와
+ snapshot_invalidation_outbox의 Redis 삭제 retry scheduler를 실행한다.
 
  Kafka/Redis 연동을 사용하지 않는 환경에서는
  bbd.user.events.enabled=false로 관련 Bean 자체를 만들지 않는다.
