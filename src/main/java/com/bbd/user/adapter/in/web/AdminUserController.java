@@ -78,6 +78,7 @@ public class AdminUserController {
             @Valid @RequestBody UpdateUserStatusRequest request
     ) {
         // 사용자 변경 모델
+        // 구현체 : UpdateUserStatusService
         UserResult result = updateUserStatusUseCase.updateStatus(
                 new UpdateUserStatusCommand(
                         userId,

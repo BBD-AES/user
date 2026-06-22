@@ -41,6 +41,7 @@ public class UpdateUserStatusService implements UpdateUserStatusUseCase {
     @Transactional
     public UserResult updateStatus(UpdateUserStatusCommand command) {
         /*
+        구현체 : UserPersistenceAdapter
          path variable로 전달된 targetUserId 기준으로 변경 대상 사용자를 조회한다.
          대상 사용자가 없으면 USER_NOT_FOUND 예외를 발생시킨다.
          */
@@ -48,12 +49,14 @@ public class UpdateUserStatusService implements UpdateUserStatusUseCase {
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
         /*
+        구현체 : UserPersistenceAdapter
          도메인 모델에 상태 변경을 위임한 뒤 저장한다.
          changeStatus()는 변경된 User 도메인 객체를 반환한다.
          */
         User saved = saveUserPort.save(target.changeStatus(command.status()));
 
         /*
+
          비활성화 상태로 변경된 경우에는 USER_DEACTIVATED 이벤트로 구분한다.
          그 외 상태 변경은 권한/인가 정보 변경 이벤트로 처리한다.
          */
@@ -67,7 +70,9 @@ public class UpdateUserStatusService implements UpdateUserStatusUseCase {
          publishEvent()는 트랜잭션 이후 Redis Snapshot 즉시 삭제를 트리거한다.
          */
         UserChangedEvent event = UserChangedEvent.from(saved, eventType);
+        // 구현체: UserOutboxPersistenceAdapter
         recordUserChangedEventPort.record(event);
+        // 구현체: SnapshotInvalidationOutboxPersistenceAdapter
         recordSnapshotInvalidationPort.record(event);
         // Spring 애플리케이션 내부 이벤트를 발행
         applicationEventPublisher.publishEvent(event);

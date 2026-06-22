@@ -9,13 +9,23 @@ import java.time.Instant;
 import java.util.UUID;
 
 /*
- User DB 변경 사실을 Kafka로 전달하기 위한 event contract.
+ User DB 변경 사실을 표현하는 application event contract.
 
- 이 객체는 application 계층에서 만들고,
- UserOutboxPersistenceAdapter가 JSON payload로 직렬화해서 user_outbox에 저장한다.
+ 이 객체는 application 계층에서 만들고 두 후속 처리에 함께 사용한다.
+
+ 1. Redis Snapshot 무효화
+    - SnapshotInvalidationOutboxPersistenceAdapter가
+      snapshot_invalidation_outbox에 PENDING 작업으로 저장한다.
+    - AFTER_COMMIT 처리기와 Scheduler가 keycloakSub 기준으로 Redis key를 삭제한다.
+
+ 2. 외부 서비스용 사용자 변경 이벤트 발행
+    - UserOutboxPersistenceAdapter가 user_outbox에 PENDING 이벤트로 저장한다.
+    - bbd.user.events.enabled=true인 환경에서는 UserOutboxPublisher가 Kafka에 발행한다.
+    - 현재 소비 서비스가 없다면 이 경로는 비활성화하거나 향후 확장 지점으로 볼 수 있다.
 
  eventId:
- 동일 이벤트의 중복 전달 여부를 추적할 수 있는 고유값.
+ 같은 사용자 변경에서 파생된 Kafka 발행 작업과 Redis 삭제 작업을 묶는 추적 ID.
+ 중복 이벤트 추적 기준으로도 사용할 수 있다.
 
  keycloakSub:
  Kafka message key이자 Redis UserSnapshot key를 만들 때 사용하는 기준값.
