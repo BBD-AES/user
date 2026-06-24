@@ -10,7 +10,12 @@ import org.springframework.stereotype.Component;
  Redis 삭제 결과는 source와 result tag로 구분한다.
  */
 @Component
-@ConditionalOnProperty(prefix = "bbd.user.events", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(
+        prefix = "bbd.user.events",
+        name = "snapshot-invalidation-enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class UserEventMetrics {
 
     private final MeterRegistry meterRegistry;

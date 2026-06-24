@@ -7,16 +7,22 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /*
  User 변경 이벤트 처리에 사용하는 설정값.
 
- Kafka/Redis 연동이 준비되지 않은 환경에서는 enabled=false로 두면
- Outbox 저장은 유지하면서 Publisher, Redis 즉시 삭제, Retry Scheduler만 비활성화한다.
+ Kafka 발행과 Redis Snapshot 무효화는 서로 다른 책임이다.
+ Kafka를 사용하지 않는 환경에서도 Redis Snapshot 삭제는 권한 반영을 위해 켤 수 있어야 한다.
  */
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "bbd.user.events")
 public class UserEventProperties {
 
-    // Kafka 발행과 Redis 무효화 처리를 활성화할지 여부.
+    // 과거 단일 스위치. kafka-enabled의 하위 호환 fallback으로만 사용한다.
     private boolean enabled;
+
+    // user_outbox의 PENDING 이벤트를 Kafka로 발행할지 여부.
+    private boolean kafkaEnabled;
+
+    // snapshot_invalidation_outbox 기반 Redis Snapshot 삭제를 실행할지 여부.
+    private boolean snapshotInvalidationEnabled = true;
 
     // User 변경 이벤트를 발행할 Kafka topic.
     private String topic = "erp.user.changed.v1";

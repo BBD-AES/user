@@ -16,7 +16,7 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 @ConditionalOnProperty(
         prefix = "bbd.user.events",
-        name = "enabled",
+        name = "kafka-enabled",
         havingValue = "true"
 )
 public class UserEventKafkaConfig {

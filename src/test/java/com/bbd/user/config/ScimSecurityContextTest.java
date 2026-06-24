@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
         "spring.flyway.enabled=true",
         "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://localhost/test-jwks",
         "bbd.user.events.enabled=false",
+        "bbd.user.events.snapshot-invalidation-enabled=false",
         "bbd.security.enabled=false",
         "bbd.user.scim.enabled=true",
         "bbd.user.scim.allowed-client-common-name=midpoint"

@@ -20,7 +20,7 @@ import java.util.UUID;
 
  2. 외부 서비스용 사용자 변경 이벤트 발행
     - UserOutboxPersistenceAdapter가 user_outbox에 PENDING 이벤트로 저장한다.
-    - bbd.user.events.enabled=true인 환경에서는 UserOutboxPublisher가 Kafka에 발행한다.
+    - bbd.user.events.kafka-enabled=true인 환경에서는 UserOutboxPublisher가 Kafka에 발행한다.
     - 현재 소비 서비스가 없다면 이 경로는 비활성화하거나 향후 확장 지점으로 볼 수 있다.
 
  eventId:

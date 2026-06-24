@@ -17,7 +17,12 @@ import org.springframework.transaction.event.TransactionalEventListener;
  */
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "bbd.user.events", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(
+        prefix = "bbd.user.events",
+        name = "snapshot-invalidation-enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class UserSnapshotImmediateCacheInvalidator {
 
     private final SnapshotInvalidationOutboxProcessor processor;
