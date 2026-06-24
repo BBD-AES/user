@@ -15,7 +15,7 @@ import java.util.concurrent.TimeoutException;
 @RequiredArgsConstructor
 @ConditionalOnProperty(
         prefix = "bbd.user.events",
-        name = "enabled",
+        name = "kafka-enabled",
         havingValue = "true"
 )
 public class KafkaUserEventPublisher implements PublishUserEventPort {

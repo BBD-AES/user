@@ -14,7 +14,12 @@ import org.springframework.stereotype.Component;
  값이 0보다 크면 Redis 장애나 cache key 설정 오류를 확인해야 한다.
  */
 @Component
-@ConditionalOnProperty(prefix = "bbd.user.events", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(
+        prefix = "bbd.user.events",
+        name = "snapshot-invalidation-enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class SnapshotInvalidationOutboxMetrics {
 
     public SnapshotInvalidationOutboxMetrics(

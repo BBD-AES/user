@@ -23,7 +23,12 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "bbd.user.events", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(
+        prefix = "bbd.user.events",
+        name = "snapshot-invalidation-enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class SnapshotInvalidationOutboxProcessor {
 
     private final SnapshotInvalidationOutboxJpaRepository repository;

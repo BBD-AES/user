@@ -79,6 +79,8 @@ bbd:
 
     events:
       enabled: ${USER_EVENTS_ENABLED:false}
+      kafka-enabled: ${USER_KAFKA_EVENTS_ENABLED:${USER_EVENTS_ENABLED:false}}
+      snapshot-invalidation-enabled: ${USER_SNAPSHOT_INVALIDATION_ENABLED:true}
       # ERP 내부 User 변경 event topic.
       topic: ${USER_CHANGED_TOPIC:erp.user.changed.v1}
       topic-partitions: ${USER_EVENT_TOPIC_PARTITIONS:1}
@@ -114,5 +116,4 @@ springdoc:
     operations-sorter: alpha
     config-url: /user/v3/api-docs/swagger-config
     url: /user/v3/api-docs
-
 

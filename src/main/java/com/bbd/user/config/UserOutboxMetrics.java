@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  Kafka 연결 장애 또는 Outbox Publisher 장애를 의심할 수 있다.
  */
 @Component
-@ConditionalOnProperty(prefix = "bbd.user.events", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "bbd.user.events", name = "kafka-enabled", havingValue = "true")
 public class UserOutboxMetrics {
 
     public UserOutboxMetrics(

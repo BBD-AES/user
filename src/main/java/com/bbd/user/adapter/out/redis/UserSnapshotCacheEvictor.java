@@ -27,7 +27,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "bbd.user.events", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(
+        prefix = "bbd.user.events",
+        name = "snapshot-invalidation-enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class UserSnapshotCacheEvictor {
 
     private final StringRedisTemplate redisTemplate;

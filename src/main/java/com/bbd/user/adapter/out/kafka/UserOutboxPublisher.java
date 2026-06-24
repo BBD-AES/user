@@ -13,11 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 
-/*
+ /*
  user_outbox의 PENDING 이벤트를 Kafka로 발행하는 scheduled publisher.
 
- bbd.user.events.enabled=true일 때만 Bean이 생성된다.
- Kafka/Redis 인프라를 준비하기 전에는 false로 두어 기존 ERP 기능에 영향을 주지 않는다.
+ bbd.user.events.kafka-enabled=true일 때만 Bean이 생성된다.
+ Kafka 인프라를 준비하기 전에는 false로 두어 기존 ERP 기능에 영향을 주지 않는다.
 
  처리 순서:
 
@@ -33,7 +33,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @ConditionalOnProperty(
         prefix = "bbd.user.events",
-        name = "enabled",
+        name = "kafka-enabled",
         havingValue = "true"
 )
 public class UserOutboxPublisher {

@@ -15,8 +15,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  Kafka로 발행하는 UserOutboxPublisher와
  snapshot_invalidation_outbox의 Redis 삭제 retry scheduler를 실행한다.
 
- Kafka/Redis 연동을 사용하지 않는 환경에서는
- bbd.user.events.enabled=false로 관련 Bean 자체를 만들지 않는다.
+ Kafka 발행은 bbd.user.events.kafka-enabled로,
+ Redis Snapshot 삭제는 bbd.user.events.snapshot-invalidation-enabled로 따로 제어한다.
  */
 @SpringBootApplication
 @ConfigurationPropertiesScan
