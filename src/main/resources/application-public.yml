@@ -25,7 +25,7 @@ spring:
       connect-timeout: ${REDIS_CONNECT_TIMEOUT:2s}
       timeout: ${REDIS_COMMAND_TIMEOUT:2s}
       ssl:
-        enabled: ${REDIS_SSL_ENABLED:true}
+        enabled: true
 
   # MSK 또는 배포 환경 Kafka broker 주소를 KAFKA_BOOTSTRAP_SERVERS로 주입한다.
   kafka:

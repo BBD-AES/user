@@ -39,6 +39,7 @@ public class InternalUserSnapshotController {
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam String keycloakSub
     ) {
+
         // Relay된 Access Token의 사용자와 Snapshot 조회 대상이 같은지 확인한다.
         if (jwt == null || !jwt.getSubject().equals(keycloakSub)) {
             throw new ApiException(ErrorCode.AUTH_FORBIDDEN);
