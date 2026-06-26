@@ -4,6 +4,8 @@ import com.bbd.user.application.model.ProvisionedUserSearchResult;
 import com.bbd.user.application.model.SearchProvisionedUsersCommand;
 import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.ManageProvisionedUserUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -45,6 +47,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  ScimExceptionHandler가 RFC 7644 Error 응답으로 변환하며,
  최종적으로 midPoint SCIM2 Connector가 그 HTTP 응답을 받는다.
  */
+@Tag(name = "1. SCIM User Controller")
 @RestController
 @RequestMapping(
         value = "/scim/v2/Users",
@@ -69,6 +72,7 @@ public class ScimUserController {
      같은 externalId나 사번이 이미 존재하면 application의 ApiException이 발생하고
      SCIM Handler가 409 uniqueness 응답으로 변환한다.
      */
+    @Operation(summary = "SCIM 사용자 생성 API")
     @PostMapping(consumes = {ScimConstants.MEDIA_TYPE, "application/json"})
     public ResponseEntity<ScimUserResponse> create(@RequestBody ScimUserRequest request) {
         UserResult created =
@@ -85,6 +89,7 @@ public class ScimUserController {
      User Service가 발급한 SCIM resource id(users.id)로 사용자 하나를 조회한다.
      존재하지 않으면 application의 USER_NOT_FOUND가 SCIM 404 응답으로 변환된다.
      */
+    @Operation(summary = "SCIM 사용자 단건 조회 API")
     @GetMapping("/{userId}")
     public ResponseEntity<ScimUserResponse> get(@PathVariable Long userId) {
         ScimUserResponse response =
@@ -102,6 +107,7 @@ public class ScimUserController {
      filter가 있으면 ScimFilterParser가 허용된 exact-match 검색으로 제한한다.
      SCIM startIndex는 0이 아니라 1부터 시작한다.
      */
+    @Operation(summary = "SCIM 사용자 목록 및 exact-match 검색 API")
     @GetMapping
     public ScimListResponse<ScimUserResponse> search(
             @RequestParam(required = false) String filter,
@@ -136,6 +142,7 @@ public class ScimUserController {
      externalId는 Keycloak sub이므로 다른 값으로 교체할 수 없다.
      동일한 값 또는 생략은 허용하고, 변경 시도는 mutability 오류로 거절한다.
      */
+    @Operation(summary = "SCIM 사용자 전체 변경 API")
     @PutMapping(
             value = "/{userId}",
             consumes = {ScimConstants.MEDIA_TYPE, "application/json"}
@@ -165,6 +172,7 @@ public class ScimUserController {
      ScimPatchMapper가 SCIM path와 다양한 JSON value 형태를 해석하고,
      application 계층에는 UpdateProvisionedUserCommand만 전달한다.
      */
+    @Operation(summary = "SCIM 사용자 부분 변경 API")
     @PatchMapping(
             value = "/{userId}",
             consumes = {ScimConstants.MEDIA_TYPE, "application/json"}
@@ -191,6 +199,7 @@ public class ScimUserController {
      성공 시 body 없이 204 No Content를 반환한다.
      application service는 USER_DEACTIVATED Outbox 이벤트도 함께 저장한다.
      */
+    @Operation(summary = "SCIM 사용자 비활성화 API")
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> delete(@PathVariable Long userId) {
         manageProvisionedUserUseCase.deactivate(userId);

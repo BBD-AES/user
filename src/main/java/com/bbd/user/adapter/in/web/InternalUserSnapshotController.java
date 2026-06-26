@@ -5,6 +5,8 @@ import com.bbd.user.application.model.UserResult;
 import com.bbd.user.application.port.in.GetUserSnapshotUseCase;
 import com.bbd.user.global.error.ApiException;
 import com.bbd.user.global.error.dto.ErrorCode;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  향후 사용자 요청과 관계없는 시스템 호출이 필요하면
  client_credentials 기반 서비스 계정과 별도 scope 검증을 추가해야 한다.
  */
+@Tag(name = "1. Internal Snapshot Controller")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +37,7 @@ public class InternalUserSnapshotController {
 
     private final GetUserSnapshotUseCase getUserSnapshotUseCase;
 
+    @Operation(summary = "내부 서비스용 사용자 스냅샷 조회 API")
     @GetMapping("/api/v1/users/internal/snapshot")
     public UserSnapshotResponse getSnapshot(
             @AuthenticationPrincipal Jwt jwt,

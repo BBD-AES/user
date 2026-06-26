@@ -14,6 +14,8 @@ import com.bbd.user.application.port.in.UpdateUserAuthorizationUseCase;
 import com.bbd.user.application.port.in.UpdateUserStatusUseCase;
 import com.bbd.user.domain.TenancyType;
 import com.bbd.user.domain.UserRole;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
  midPoint는 /scim/** 전용 mTLS API를 사용하고,
  두 adapter는 각자의 application use case에서 같은 Outbox와 Snapshot 복구 흐름을 사용한다.
  */
+@Tag(name = "2. User Admin Controller")
 @RequireRole(com.bbd.securitycore.domain.UserRole.ADMIN)
 @RestController
 @RequestMapping("/api/v1/users")
@@ -47,6 +50,7 @@ public class AdminUserController {
     조건 없이 호출하면 전체 사용자를 페이지 단위로 조회한다.
     사번, 이름, 역할, 소속 유형 기준으로 필터링할 수 있다.
   */
+    @Operation(summary = "사용자 목록 검색 API (관리자 권한)")
     @GetMapping
     public UserSearchResponse searchUsers(
             @RequestParam(required = false) String employeeNumber,
@@ -72,6 +76,7 @@ public class AdminUserController {
 
 
     // status 변경 api
+    @Operation(summary = "사용자 상태 변경 API (관리자 권한)")
     @PatchMapping("/{userId}/status")
     public UserSnapshotResponse updateStatus(
             @PathVariable Long userId,

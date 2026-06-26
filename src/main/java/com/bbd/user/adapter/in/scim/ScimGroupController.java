@@ -1,5 +1,7 @@
 package com.bbd.user.adapter.in.scim;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,7 @@ import java.util.Map;
  생성, 변경, 삭제 endpoint는 제공하지 않아 Group projection을 User Service에
  프로비저닝하는 잘못된 구성을 조기에 드러낸다.
  */
+@Tag(name = "2. SCIM Group Controller")
 @RestController
 @RequestMapping(
         value = "/scim/v2/Groups",
@@ -25,6 +28,7 @@ import java.util.Map;
 )
 public class ScimGroupController {
 
+    @Operation(summary = "SCIM 그룹 목록 조회 API")
     @GetMapping
     public ScimListResponse<Map<String, Object>> findAll() {
         return ScimListResponse.of(java.util.List.of(), 0, 1);

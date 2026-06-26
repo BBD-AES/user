@@ -1,5 +1,7 @@
 package com.bbd.user.adapter.in.scim;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  discovery 응답은 실제 User 데이터를 변경하지 않는다.
  하지만 /scim/** 아래에 있으므로 UserSecurityConfig의 mTLS 인증을 동일하게 적용받는다.
  */
+@Tag(name = "3. SCIM Discovery Controller")
 @RestController
 @RequestMapping(
         value = "/scim/v2",
@@ -37,6 +40,7 @@ public class ScimDiscoveryController {
      Bulk, 비밀번호 변경, 정렬은 구현하지 않았으므로 false이고,
      인증 방식은 UserSecurityConfig와 맞춰 X.509 mutual TLS로 알린다.
      */
+    @Operation(summary = "SCIM 서비스 제공자 설정 조회 API")
     @GetMapping("/ServiceProviderConfig")
     public Map<String, Object> serviceProviderConfig() {
         return Map.of(
@@ -83,6 +87,7 @@ public class ScimDiscoveryController {
      모두 요구하므로 Group도 호환용 read-only resource로 광고한다.
      ERP 권한은 Group projection이 아니라 User.roles와 ERP extension으로 관리한다.
      */
+    @Operation(summary = "SCIM 리소스 타입 목록 조회 API")
     @GetMapping("/ResourceTypes")
     public ScimListResponse<Map<String, Object>> resourceTypes() {
         Map<String, Object> user = Map.of(
@@ -134,6 +139,7 @@ public class ScimDiscoveryController {
      이 응답은 connector가 attribute definition을 확인하기 위한 metadata다.
      실제 요청 검증과 도메인 변환은 ScimUserRequest/ScimPatchMapper가 담당한다.
      */
+    @Operation(summary = "SCIM 스키마 목록 조회 API")
     @GetMapping("/Schemas")
     public ScimListResponse<Map<String, Object>> schemas() {
         List<Map<String, Object>> resources = List.of(

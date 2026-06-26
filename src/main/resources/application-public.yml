@@ -115,5 +115,11 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
     config-url: /user/v3/api-docs/swagger-config
-    url: /user/v3/api-docs
-
+    urls:
+      - name: "1. ERP API"
+        url: /user/v3/api-docs/erp
+      - name: "2. SCIM Provisioning API"
+        url: /user/v3/api-docs/scim
+      - name: "3. Internal API"
+        url: /user/v3/api-docs/internal
+    urls-primary-name: "1. ERP API"
