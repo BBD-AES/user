@@ -16,6 +16,19 @@ public class SwaggerConfig {
     private static final String SECURITY_SCHEME_NAME = "Bearer Authentication";
 
     @Bean
+    public GroupedOpenApi allApi() {
+        return GroupedOpenApi.builder()
+                .group("all")
+                .pathsToMatch(
+                        "/api/**",
+                        "/scim/**",
+                        "/health",
+                        "/actuator/**"
+                )
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi erpApi() {
         return GroupedOpenApi.builder()
                 .group("erp")
