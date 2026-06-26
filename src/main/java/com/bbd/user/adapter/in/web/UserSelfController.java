@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "1. User Directory Controller")
+@Tag(name = "1. ERP User Directory Controller")
 @RestController
 @RequiredArgsConstructor
 public class UserSelfController {

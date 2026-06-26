@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  향후 사용자 요청과 관계없는 시스템 호출이 필요하면
  client_credentials 기반 서비스 계정과 별도 scope 검증을 추가해야 한다.
  */
-@Tag(name = "1. Internal Snapshot Controller")
+@Tag(name = "6. Internal Snapshot Controller")
 @Slf4j
 @RestController
 @RequiredArgsConstructor

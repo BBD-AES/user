@@ -47,7 +47,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  ScimExceptionHandler가 RFC 7644 Error 응답으로 변환하며,
  최종적으로 midPoint SCIM2 Connector가 그 HTTP 응답을 받는다.
  */
-@Tag(name = "1. SCIM User Controller")
+@Tag(name = "3. SCIM User Controller")
 @RestController
 @RequestMapping(
         value = "/scim/v2/Users",

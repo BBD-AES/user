@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
  midPoint는 /scim/** 전용 mTLS API를 사용하고,
  두 adapter는 각자의 application use case에서 같은 Outbox와 Snapshot 복구 흐름을 사용한다.
  */
-@Tag(name = "2. User Admin Controller")
+@Tag(name = "2. ERP User Admin Controller")
 @RequireRole(com.bbd.securitycore.domain.UserRole.ADMIN)
 @RestController
 @RequestMapping("/api/v1/users")

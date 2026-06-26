@@ -20,7 +20,7 @@ import java.util.Map;
  생성, 변경, 삭제 endpoint는 제공하지 않아 Group projection을 User Service에
  프로비저닝하는 잘못된 구성을 조기에 드러낸다.
  */
-@Tag(name = "2. SCIM Group Controller")
+@Tag(name = "4. SCIM Group Controller")
 @RestController
 @RequestMapping(
         value = "/scim/v2/Groups",

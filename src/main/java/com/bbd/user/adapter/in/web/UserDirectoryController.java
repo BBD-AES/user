@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  ERP 프런트에서 사원 기본 정보를 조회하는 read-only API.
  /api/** 보안 체인에 의해 로그인은 필요하지만, ADMIN 역할은 요구하지 않는다.
  */
-@Tag(name = "1. User Directory Controller")
+@Tag(name = "1. ERP User Directory Controller")
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor

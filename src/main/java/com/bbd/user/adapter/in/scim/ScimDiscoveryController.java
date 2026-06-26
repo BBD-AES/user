@@ -23,7 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  discovery 응답은 실제 User 데이터를 변경하지 않는다.
  하지만 /scim/** 아래에 있으므로 UserSecurityConfig의 mTLS 인증을 동일하게 적용받는다.
  */
-@Tag(name = "3. SCIM Discovery Controller")
+@Tag(name = "5. SCIM Discovery Controller")
 @RestController
 @RequestMapping(
         value = "/scim/v2",

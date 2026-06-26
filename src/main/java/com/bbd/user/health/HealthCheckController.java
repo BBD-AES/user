@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "2. Health Check Controller")
+@Tag(name = "7. Health Check Controller")
 @RestController
 public class HealthCheckController {
 
